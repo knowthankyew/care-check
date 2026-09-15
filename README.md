@@ -112,8 +112,8 @@ CareCheck Studio is organized into three unified rails:
 
 ### 1. Installation
 ```bash
-git clone https://github.com/carecheck/carecheck.git
-cd carecheck
+git clone https://github.com/knowthankyew/care-check.git
+cd care-check
 npm install
 ```
 
