@@ -61,9 +61,12 @@ Medical data is uniquely toxic when concentrated: it reveals financial precarity
 - **Zero Telemetry & Third-Party Trackers**: No Google Analytics, no Meta Pixels, no Sentry error logging, no session replay tools (FullStory/LogRocket), and no third-party cookie beacons.
 - **Aggressive Content Security Policy (CSP)**:
   ```http
-  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://raw.githubusercontent.com; frame-src 'none'; object-src 'none';
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'none'; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none';
   ```
 - **Local Storage Isolation**: All patient records, draft bills, and audit outcomes are persisted in client-controlled `IndexedDB` or volatile memory. Users can export an AES-GCM password-encrypted archive (`.carecheck`) or execute an instant **Burn All Data** command that completely wipes local databases and caches.
+
+### 2.2 Financial Calculation & Rounding Precision
+All currency values are calculated using IEEE-754 floating point arithmetic guarded by deterministic 2-decimal rounding (`Number(val.toFixed(2))`) on all intermediate and final outputs. For v0.x releases, these rounding guards prevent UI cent divergence; full integer-cent arithmetic (`cents = Math.round(usd * 100)`) is designated on the roadmap for multi-currency or enterprise-scale reconciliation.
 
 ---
 

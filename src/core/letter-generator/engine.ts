@@ -119,8 +119,8 @@ ${hospitalName}
 
 **From:**  
 ${patient.fullName}  
-${patient.addressLine1}${patient.addressLine2 ? '\n' + patient.addressLine2 : ''}  
-${patient.city}, ${patient.state} ${patient.zipCode}  
+${patient.addressLine1}  
+${patient.addressLine2 ? patient.addressLine2 + '  \n' : ''}${patient.city}, ${patient.state} ${patient.zipCode}  
 Phone: ${patient.phoneNumber}${patient.email ? '\nEmail: ' + patient.email : ''}
 
 **Subject:** Formal Application for Section 501(r) Financial Assistance and Notice of ECA Safe Harbor  
@@ -203,8 +203,8 @@ ${hospitalName}
 
 **From:**  
 ${patient.fullName}  
-${patient.addressLine1}${patient.addressLine2 ? '\n' + patient.addressLine2 : ''}  
-${patient.city}, ${patient.state} ${patient.zipCode}  
+${patient.addressLine1}  
+${patient.addressLine2 ? patient.addressLine2 + '  \n' : ''}${patient.city}, ${patient.state} ${patient.zipCode}  
 Phone: ${patient.phoneNumber}${patient.email ? '\nEmail: ' + patient.email : ''}
 
 **Subject:** Formal Dispute of Itemized Charges and Notice of Price Transparency Violations  
@@ -264,8 +264,8 @@ ${hospitalName}
 
 **From:**  
 ${patient.fullName}  
-${patient.addressLine1}${patient.addressLine2 ? '\n' + patient.addressLine2 : ''}  
-${patient.city}, ${patient.state} ${patient.zipCode}  
+${patient.addressLine1}  
+${patient.addressLine2 ? patient.addressLine2 + '  \n' : ''}${patient.city}, ${patient.state} ${patient.zipCode}  
 Phone: ${patient.phoneNumber}${patient.email ? '\nEmail: ' + patient.email : ''}
 
 **Subject:** Formal Demand for Section 501(r) Financial Assistance & Medical Bill Price Dispute  
@@ -435,7 +435,9 @@ function escapeHtml(text: string): string {
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function escapePipe(text: string): string {

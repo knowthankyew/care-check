@@ -138,7 +138,7 @@ export const SourcePanel: React.FC<SourcePanelProps> = ({
             onClick={() => setInspectedSource(src)}
           >
             <div className="source-badge-row">
-              <span className="source-type">{src.type.replace('_', ' ')}</span>
+              <span className="source-type">{src.type.replace(/_/g, ' ')}</span>
               <span style={{ fontSize: '0.7rem', color: '#10b981' }}>View &rarr;</span>
             </div>
             <div className="source-name">{src.title}</div>

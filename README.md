@@ -63,7 +63,7 @@ CareCheck Studio is organized into three unified rails:
 
 ```
 ├── ARCHITECTURE.md                  # Comprehensive architectural specification
-├── index.html                       # HTML shell with Google Fonts (Outfit, Inter, JetBrains Mono)
+├── index.html                       # HTML shell with strict CSP, system font stack, zero external network calls
 ├── vite.config.ts                   # Vite + React configuration
 ├── data/
 │   ├── fpl/

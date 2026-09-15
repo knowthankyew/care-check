@@ -8,6 +8,7 @@ export type PovertyRegion = 'contiguous' | 'alaska' | 'hawaii';
 export interface FplYearlyGuideline {
   year: number;
   effectiveDate: string; // ISO 8601 Date
+  publicationReference?: string; // Federal Register publication citation (e.g., 89 FR 2961) or benchmark status
   regions: Record<
     PovertyRegion,
     {

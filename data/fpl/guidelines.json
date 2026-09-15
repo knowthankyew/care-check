@@ -6,6 +6,7 @@
     {
       "year": 2024,
       "effectiveDate": "2024-01-17",
+      "publicationReference": "89 FR 2961 (Jan. 17, 2024)",
       "regions": {
         "contiguous": {
           "baseAmount": 15060,
@@ -24,6 +25,7 @@
     {
       "year": 2025,
       "effectiveDate": "2025-01-15",
+      "publicationReference": "90 FR 3728 (Jan. 15, 2025)",
       "regions": {
         "contiguous": {
           "baseAmount": 15650,
@@ -42,6 +44,7 @@
     {
       "year": 2026,
       "effectiveDate": "2026-01-14",
+      "publicationReference": "Projected benchmark based on HHS statutory formula; verify against official Federal Register publication upon release",
       "regions": {
         "contiguous": {
           "baseAmount": 16200,

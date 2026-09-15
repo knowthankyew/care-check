@@ -11,7 +11,7 @@ export interface BillLineItem {
   revenueCode?: string; // e.g. "0450" (Emergency Room)
   description: string;
   quantity: number;
-  billedCharge: number; // The gross chargemaster amount billed for this line
+  billedCharge: number; // The total gross chargemaster amount billed for this line (reflecting quantity)
   insurerAllowedAmount?: number; // Contracted amount allowed by insurance if applicable
   insurerPaidAmount?: number; // Amount paid by insurer
   patientResponsibility: number; // Balance billed directly to the patient

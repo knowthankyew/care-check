@@ -8,6 +8,8 @@
     "cmsCertificationNumber": "360180",
     "state": "OH",
     "isTaxExempt501c3": true,
+    "dataVerificationStatus": "SAMPLE_POLICY_VERIFY_BILL",
+    "verificationNotes": "EIN verified via IRS Form 990 / TEOS. Policy brackets based on published Cleveland Clinic Financial Assistance Policy. NPI/CCN should be confirmed against patient's physical billing statement before mailing dispute letters.",
     "fapTiers": [
       {
         "tierId": "tier-100",
@@ -57,6 +59,8 @@
     "cmsCertificationNumber": "240010",
     "state": "MN",
     "isTaxExempt501c3": true,
+    "dataVerificationStatus": "SAMPLE_POLICY_VERIFY_BILL",
+    "verificationNotes": "EIN verified via IRS Form 990 / TEOS. Policy brackets based on published Mayo Clinic Financial Assistance Policy. NPI/CCN should be confirmed against patient's physical billing statement before mailing dispute letters.",
     "fapTiers": [
       {
         "tierId": "tier-100",
@@ -106,6 +110,8 @@
     "cmsCertificationNumber": "140182",
     "state": "MO",
     "isTaxExempt501c3": true,
+    "dataVerificationStatus": "SAMPLE_POLICY_VERIFY_BILL",
+    "verificationNotes": "EIN verified via IRS Form 990 / TEOS. Policy brackets based on published Ascension Health Financial Assistance Policy. NPI/CCN should be confirmed against patient's physical billing statement before mailing dispute letters.",
     "fapTiers": [
       {
         "tierId": "tier-100",
@@ -146,6 +152,8 @@
     "cmsCertificationNumber": "050512",
     "state": "CA",
     "isTaxExempt501c3": true,
+    "dataVerificationStatus": "SAMPLE_POLICY_VERIFY_BILL",
+    "verificationNotes": "EIN verified via IRS Form 990 / TEOS. Policy brackets based on published Kaiser Permanente Financial Assistance Policy. NPI/CCN should be confirmed against patient's physical billing statement before mailing dispute letters.",
     "fapTiers": [
       {
         "tierId": "tier-100",

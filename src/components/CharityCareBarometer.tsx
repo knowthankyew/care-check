@@ -97,6 +97,7 @@ export const CharityCareBarometer: React.FC<CharityCareBarometerProps> = ({
               className="stepper-btn"
               onClick={() => onHouseholdSizeChange(Math.max(1, householdSize - 1))}
               disabled={householdSize <= 1}
+              aria-label="Decrease household size"
             >
               -
             </button>
@@ -104,6 +105,7 @@ export const CharityCareBarometer: React.FC<CharityCareBarometerProps> = ({
             <button
               className="stepper-btn"
               onClick={() => onHouseholdSizeChange(householdSize + 1)}
+              aria-label="Increase household size"
             >
               +
             </button>
@@ -162,13 +164,20 @@ export const CharityCareBarometer: React.FC<CharityCareBarometerProps> = ({
           </span>
           <span className="fpl-meter-val">{fplPercent}% FPL</span>
         </div>
-        <div className="progress-track">
+        <div
+          className="progress-track"
+          role="progressbar"
+          aria-valuenow={fplPercent}
+          aria-valuemin={0}
+          aria-valuemax={400}
+          aria-label="Income Relative to Federal Poverty Line"
+        >
           <div className="progress-fill" style={{ width: `${meterProgress}%` }} />
         </div>
         <div className="fpl-scale-ticks">
           <span>0% (Free Care)</span>
           <span>100% FPL (${assessment.fplThresholdUSD.toLocaleString()})</span>
-          <span>200% ({hospital.fapTiers[0]?.maxFplPercent || 200}%)</span>
+          <span>{hospital.fapTiers[0]?.maxFplPercent || 200}% (100% Relief)</span>
           <span>300%</span>
           <span>400% (AGB Cap)</span>
         </div>

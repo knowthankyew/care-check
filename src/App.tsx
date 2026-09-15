@@ -194,7 +194,7 @@ export const App: React.FC = () => {
       annualHouseholdIncome: annualIncome,
       totalPatientBalance: bill.totalPatientResponsibility,
       statementDate: bill.statementDate,
-      evaluationYear: 2026,
+      evaluationYear: new Date().getFullYear(),
     });
   }, [currentHospital, householdSize, annualIncome, bill.totalPatientResponsibility, bill.statementDate]);
 
@@ -225,6 +225,13 @@ export const App: React.FC = () => {
           window.caches.keys().then((keys) => {
             keys.forEach((k) => window.caches.delete(k));
           });
+        }
+        if (typeof window !== 'undefined' && 'indexedDB' in window && typeof indexedDB.databases === 'function') {
+          indexedDB.databases().then((dbs) => {
+            for (const db of dbs) {
+              if (db.name) indexedDB.deleteDatabase(db.name);
+            }
+          }).catch(() => {});
         }
       } catch {
         // Silently ignore storage errors

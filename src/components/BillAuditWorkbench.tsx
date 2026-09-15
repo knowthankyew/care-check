@@ -126,6 +126,7 @@ export const BillAuditWorkbench: React.FC<BillAuditWorkbenchProps> = ({
               type="text"
               className="input-num"
               placeholder="CPT Code"
+              maxLength={15}
               value={newCpt}
               onChange={(e) => setNewCpt(e.target.value)}
             />
@@ -133,6 +134,7 @@ export const BillAuditWorkbench: React.FC<BillAuditWorkbenchProps> = ({
               type="text"
               className="input-num"
               placeholder="Description"
+              maxLength={150}
               value={newDesc}
               onChange={(e) => setNewDesc(e.target.value)}
             />
@@ -257,6 +259,7 @@ export const BillAuditWorkbench: React.FC<BillAuditWorkbenchProps> = ({
                   <td>
                     <button
                       onClick={() => handleRemoveLineItem(item.id)}
+                      aria-label="Remove line item"
                       style={{
                         background: 'transparent',
                         border: 'none',

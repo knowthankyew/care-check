@@ -26,7 +26,7 @@ const GUIDELINES = guidelinesData.guidelines as FplYearlyGuideline[];
 export function calculateFpl(params: FplCalculationParams): FplCalculationResult {
   const householdSize = Math.max(1, Math.floor(params.householdSize));
   const region: PovertyRegion = params.region || 'contiguous';
-  const targetYear = params.year || 2026;
+  const targetYear = params.year || GUIDELINES[GUIDELINES.length - 1]?.year || new Date().getFullYear();
 
   // Find target year guideline or fallback to latest
   const guideline =

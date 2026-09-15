@@ -19,6 +19,7 @@ export const DefenseStudio: React.FC<DefenseStudioProps> = ({
 }) => {
   const [letterType, setLetterType] = useState<LetterType>('COMPREHENSIVE_PROTECTION_NOTICE');
   const [copied, setCopied] = useState(false);
+  const [copyError, setCopyError] = useState(false);
   const [patientInfo, setPatientInfo] = useState<PatientContactInfo>({
     fullName: 'Jane Doe',
     addressLine1: '452 Elm Street',
@@ -45,9 +46,22 @@ export const DefenseStudio: React.FC<DefenseStudioProps> = ({
   const generatedDoc = generateDisputeLetter(payload);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(generatedDoc.markdownContent);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(generatedDoc.markdownContent)
+        .then(() => {
+          setCopied(true);
+          setCopyError(false);
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch(() => {
+          setCopyError(true);
+          setTimeout(() => setCopyError(false), 3000);
+        });
+    } else {
+      setCopyError(true);
+      setTimeout(() => setCopyError(false), 3000);
+    }
   };
 
   const handlePrint = () => {
@@ -140,6 +154,7 @@ export const DefenseStudio: React.FC<DefenseStudioProps> = ({
             type="text"
             className="input-num"
             style={{ fontSize: '0.78rem' }}
+            maxLength={100}
             value={patientInfo.fullName}
             onChange={(e) => setPatientInfo({ ...patientInfo, fullName: e.target.value })}
           />
@@ -150,6 +165,7 @@ export const DefenseStudio: React.FC<DefenseStudioProps> = ({
             type="text"
             className="input-num"
             style={{ fontSize: '0.78rem' }}
+            maxLength={30}
             value={patientInfo.phoneNumber}
             onChange={(e) => setPatientInfo({ ...patientInfo, phoneNumber: e.target.value })}
           />
@@ -159,7 +175,7 @@ export const DefenseStudio: React.FC<DefenseStudioProps> = ({
       {/* Editable Notes */}
       <div style={{ marginBottom: '12px' }}>
         <label style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block', marginBottom: '4px' }}>
-          Personal Hardship Statement (Optional)
+          Personal Hardship Statement (Optional, max 2,500 chars)
         </label>
         <textarea
           className="input-num"
@@ -170,6 +186,7 @@ export const DefenseStudio: React.FC<DefenseStudioProps> = ({
             fontFamily: 'var(--font-sans)',
             resize: 'none',
           }}
+          maxLength={2500}
           value={patientNotes}
           onChange={(e) => setPatientNotes(e.target.value)}
         />
@@ -181,7 +198,7 @@ export const DefenseStudio: React.FC<DefenseStudioProps> = ({
       {/* Action Buttons */}
       <div className="defense-actions">
         <button className="btn-secondary" onClick={handleCopy}>
-          {copied ? '✓ Copied!' : 'Copy Letter'}
+          {copied ? '✓ Copied!' : copyError ? '⚠ Copy Failed' : 'Copy Letter'}
         </button>
         <button className="btn-primary" onClick={handlePrint}>
           <svg
@@ -203,8 +220,7 @@ export const DefenseStudio: React.FC<DefenseStudioProps> = ({
       </div>
 
       <div style={{ marginTop: '12px', fontSize: '0.72rem', color: '#64748b' }}>
-        📬 <strong>Delivery Advice:</strong> Send via USPS Certified Mail with Return Receipt Requested.
-        Keep a copy for proof of ECA safe harbor invocation under 26 CFR § 1.501(r)-6.
+        📬 <strong>Delivery Advice:</strong> Send via USPS Certified Mail with Return Receipt Requested. Verify hospital NPI/CCN on your itemized billing statement before mailing. Keep a copy for proof of ECA safe harbor invocation under 26 CFR § 1.501(r)-6.
       </div>
     </aside>
   );

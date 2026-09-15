@@ -69,6 +69,7 @@ export function auditMedicalBill(
     }
 
     // 2. Medicare Markup Multiplier Check
+    // Compare total billed charge to total Medicare allowable baseline (medicareRate * quantity)
     if (medicareRate !== undefined && medicareRate > 0) {
       markupMultiplier = Number((item.billedCharge / (medicareRate * (item.quantity || 1))).toFixed(1));
 

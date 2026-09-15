@@ -179,4 +179,42 @@ describe('CharityCareEngine - 501(r) Eligibility Assessment', () => {
     expect(assessment.ecaSafeHarborActive).toBe(true);
     expect(assessment.daysRemainingInApplicationWindow).toBe(140);
   });
+
+  it('handles edge cases: zero income, negative income, and household size 0', () => {
+    // Zero income
+    const zeroRes = calculateFpl({
+      householdSize: 1,
+      annualHouseholdIncome: 0,
+      year: 2026,
+    });
+    expect(zeroRes.annualHouseholdIncome).toBe(0);
+    expect(zeroRes.povertyPercentage).toBe(0);
+
+    // Negative income should clamp to 0
+    const negRes = calculateFpl({
+      householdSize: 1,
+      annualHouseholdIncome: -5000,
+      year: 2026,
+    });
+    expect(negRes.annualHouseholdIncome).toBe(0);
+    expect(negRes.povertyPercentage).toBe(0);
+
+    // Household size of 0 should clamp to minimum 1
+    const zeroHhRes = calculateFpl({
+      householdSize: 0,
+      annualHouseholdIncome: 16200,
+      year: 2026,
+    });
+    expect(zeroHhRes.householdSize).toBe(1);
+    expect(zeroHhRes.povertyPercentage).toBe(100);
+
+    // Negative household size should clamp to minimum 1
+    const negHhRes = calculateFpl({
+      householdSize: -3,
+      annualHouseholdIncome: 16200,
+      year: 2026,
+    });
+    expect(negHhRes.householdSize).toBe(1);
+    expect(negHhRes.povertyPercentage).toBe(100);
+  });
 });

@@ -52,6 +52,10 @@ export interface HospitalProfile {
   // Contact info for dispute submission
   billingContact: HospitalBillingContact;
 
+  // Data verification status for audit integrity
+  dataVerificationStatus?: 'VERIFIED_PRIMARY_SOURCE' | 'SAMPLE_POLICY_VERIFY_BILL';
+  verificationNotes?: string;
+
   // Reference to CMS Machine-Readable File (MRF) index slice if available
   mrfSliceUrl?: string;
 }

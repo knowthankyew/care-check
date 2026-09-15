@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 export interface GroundedSource {
   id: string;
@@ -15,21 +15,37 @@ interface SourceModalProps {
 }
 
 export const SourceModal: React.FC<SourceModalProps> = ({ source, onClose }) => {
+  useEffect(() => {
+    if (!source) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [source, onClose]);
+
   if (!source) return null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="source-modal-title"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
           <div>
-            <span className="source-type">{source.type.replace('_', ' ')}</span>
-            <h3 style={{ marginTop: '4px', fontSize: '1.1rem', color: '#f8fafc' }}>
+            <span className="source-type">{source.type.replace(/_/g, ' ')}</span>
+            <h3 id="source-modal-title" style={{ marginTop: '4px', fontSize: '1.1rem', color: '#f8fafc' }}>
               {source.title}
             </h3>
             <span className="source-statute">{source.citation}</span>
           </div>
           <button
             onClick={onClose}
+            aria-label="Close dialog"
             style={{
               background: 'transparent',
               border: 'none',

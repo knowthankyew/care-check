@@ -122,4 +122,52 @@ describe('LetterGeneratorEngine', () => {
     expect(doc.htmlContent).toContain('Notice & Self-Advocacy Disclaimer');
     expect(doc.htmlContent).toContain('does not constitute formal legal advice');
   });
+
+  it('escapes malicious XSS payloads and quotes in generated HTML output', () => {
+    const maliciousPayload: DisputeLetterPayload = {
+      letterType: 'COMPREHENSIVE_PROTECTION_NOTICE',
+      accountNumber: 'ACC-12345"><script>alert("xss")</script>',
+      statementDate: '2026-08-15',
+      patient: {
+        fullName: 'Jane <img src=x onerror=alert(1)> Doe',
+        addressLine1: '123 "Main" Street',
+        city: 'Cleveland',
+        state: 'OH',
+        zipCode: '44101',
+        phoneNumber: '(216) 555-0199',
+      },
+      additionalPatientStatement: 'Unforeseen <script>malicious()</script> "hardship\'s impact"',
+    };
+
+    const doc = generateDisputeLetter(maliciousPayload);
+
+    // Verify <script> tags are neutralised into &lt;script&gt;
+    expect(doc.htmlContent).not.toContain('<script>');
+    expect(doc.htmlContent).not.toContain('<img src=x onerror=alert(1)>');
+    expect(doc.htmlContent).toContain('&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+    expect(doc.htmlContent).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    expect(doc.htmlContent).toContain('&quot;Main&quot;');
+    expect(doc.htmlContent).toContain('&#39;');
+  });
+
+  it('generates dispute letter safely when assessment and audit are both undefined', () => {
+    const minimalPayload: DisputeLetterPayload = {
+      letterType: 'PRICE_TRANSPARENCY_AUDIT_DISPUTE',
+      accountNumber: 'ACC-999',
+      statementDate: '2026-09-01',
+      patient: {
+        fullName: 'John Doe',
+        addressLine1: '100 Broadway',
+        city: 'New York',
+        state: 'NY',
+        zipCode: '10001',
+        phoneNumber: '(212) 555-0100',
+      },
+    };
+
+    const doc = generateDisputeLetter(minimalPayload);
+    expect(doc.markdownContent).toContain('Formal Dispute of Itemized Charges');
+    expect(doc.markdownContent).toContain('Account #ACC-999');
+    expect(doc.htmlContent).toContain('John Doe');
+  });
 });
