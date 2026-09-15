@@ -40,11 +40,75 @@
     "commonUnbundlingRisk": false
   },
   {
+    "code": "99202",
+    "category": "Evaluation & Management",
+    "description": "Office or outpatient visit for evaluation and management of new patient, 15-29 minutes",
+    "nationalMedianCashPriceUSD": 95,
+    "medicareBaselineRateUSD": 74.20,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "99203",
+    "category": "Evaluation & Management",
+    "description": "Office or outpatient visit for evaluation and management of new patient, 30-44 minutes",
+    "nationalMedianCashPriceUSD": 165,
+    "medicareBaselineRateUSD": 114.50,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "99204",
+    "category": "Evaluation & Management",
+    "description": "Office or outpatient visit for evaluation and management of new patient, 45-59 minutes",
+    "nationalMedianCashPriceUSD": 260,
+    "medicareBaselineRateUSD": 170.80,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "99205",
+    "category": "Evaluation & Management",
+    "description": "Office or outpatient visit for evaluation and management of new patient, 60-74 minutes",
+    "nationalMedianCashPriceUSD": 360,
+    "medicareBaselineRateUSD": 225.40,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "99213",
+    "category": "Evaluation & Management",
+    "description": "Office or outpatient visit for evaluation and management of established patient, 20-29 minutes",
+    "nationalMedianCashPriceUSD": 125,
+    "medicareBaselineRateUSD": 92.30,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "99214",
+    "category": "Evaluation & Management",
+    "description": "Office or outpatient visit for evaluation and management of established patient, 30-39 minutes",
+    "nationalMedianCashPriceUSD": 190,
+    "medicareBaselineRateUSD": 131.20,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "99215",
+    "category": "Evaluation & Management",
+    "description": "Office or outpatient visit for evaluation and management of established patient, 40-54 minutes",
+    "nationalMedianCashPriceUSD": 275,
+    "medicareBaselineRateUSD": 183.60,
+    "commonUnbundlingRisk": false
+  },
+  {
     "code": "70450",
     "category": "Radiology / CT Scan",
     "description": "Computed tomography, head or brain; without contrast material",
     "nationalMedianCashPriceUSD": 420,
     "medicareBaselineRateUSD": 98.40,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "70491",
+    "category": "Radiology / CT Scan",
+    "description": "Computed tomography, neck; with contrast material(s)",
+    "nationalMedianCashPriceUSD": 540,
+    "medicareBaselineRateUSD": 128.00,
     "commonUnbundlingRisk": false
   },
   {
@@ -56,12 +120,93 @@
     "commonUnbundlingRisk": false
   },
   {
+    "code": "74177",
+    "category": "Radiology / CT Scan",
+    "description": "Computed tomography, abdomen and pelvis; with contrast material(s)",
+    "nationalMedianCashPriceUSD": 780,
+    "medicareBaselineRateUSD": 198.50,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "70551",
+    "category": "Radiology / MRI",
+    "description": "Magnetic resonance imaging, brain; without contrast material",
+    "nationalMedianCashPriceUSD": 720,
+    "medicareBaselineRateUSD": 195.00,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "72148",
+    "category": "Radiology / MRI",
+    "description": "Magnetic resonance imaging, lumbar spine; without contrast material",
+    "nationalMedianCashPriceUSD": 690,
+    "medicareBaselineRateUSD": 190.00,
+    "commonUnbundlingRisk": false
+  },
+  {
     "code": "73721",
     "category": "Radiology / MRI",
     "description": "Magnetic resonance imaging, any joint of lower extremity; without contrast",
     "nationalMedianCashPriceUSD": 650,
     "medicareBaselineRateUSD": 185.00,
     "commonUnbundlingRisk": false
+  },
+  {
+    "code": "71045",
+    "category": "Radiology / X-Ray",
+    "description": "Radiologic examination, chest; single view",
+    "nationalMedianCashPriceUSD": 85,
+    "medicareBaselineRateUSD": 22.40,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "71046",
+    "category": "Radiology / X-Ray",
+    "description": "Radiologic examination, chest; 2 views",
+    "nationalMedianCashPriceUSD": 115,
+    "medicareBaselineRateUSD": 28.90,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "76700",
+    "category": "Radiology / Ultrasound",
+    "description": "Ultrasound, abdominal, real time with image documentation; complete",
+    "nationalMedianCashPriceUSD": 320,
+    "medicareBaselineRateUSD": 88.20,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "76805",
+    "category": "Radiology / Ultrasound",
+    "description": "Ultrasound, pregnant uterus, real time with image documentation, fetal and maternal evaluation",
+    "nationalMedianCashPriceUSD": 350,
+    "medicareBaselineRateUSD": 110.00,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "76830",
+    "category": "Radiology / Ultrasound",
+    "description": "Ultrasound, transvaginal",
+    "nationalMedianCashPriceUSD": 310,
+    "medicareBaselineRateUSD": 85.40,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "77067",
+    "category": "Radiology / Mammography",
+    "description": "Screening mammography, bilateral (2-view study of each breast), including computer-aided detection",
+    "nationalMedianCashPriceUSD": 240,
+    "medicareBaselineRateUSD": 142.50,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "80048",
+    "category": "Pathology & Laboratory",
+    "description": "Basic metabolic panel (Calcium, Carbon dioxide, Chloride, Creatinine, Glucose, Potassium, Sodium, BUN)",
+    "nationalMedianCashPriceUSD": 35,
+    "medicareBaselineRateUSD": 9.40,
+    "commonUnbundlingRisk": true,
+    "unbundlingWarning": "Do not bill constituent electrolyte/glucose tests separately when BMP is performed"
   },
   {
     "code": "80053",
@@ -73,6 +218,39 @@
     "unbundlingWarning": "Do not bill individual tests (e.g. 82040 Albumin, 82247 Bilirubin) separately when CMP is performed"
   },
   {
+    "code": "80061",
+    "category": "Pathology & Laboratory",
+    "description": "Lipid panel (Total cholesterol, HDL cholesterol, Triglycerides)",
+    "nationalMedianCashPriceUSD": 40,
+    "medicareBaselineRateUSD": 14.50,
+    "commonUnbundlingRisk": true,
+    "unbundlingWarning": "Constituent lipid tests (82465, 83718, 84478) are bundled within 80061"
+  },
+  {
+    "code": "81001",
+    "category": "Pathology & Laboratory",
+    "description": "Urinalysis, automated, with microscopy",
+    "nationalMedianCashPriceUSD": 20,
+    "medicareBaselineRateUSD": 3.80,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "83036",
+    "category": "Pathology & Laboratory",
+    "description": "Hemoglobin; glycosylated (A1C)",
+    "nationalMedianCashPriceUSD": 32,
+    "medicareBaselineRateUSD": 10.90,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "84443",
+    "category": "Pathology & Laboratory",
+    "description": "Thyroid stimulating hormone (TSH)",
+    "nationalMedianCashPriceUSD": 45,
+    "medicareBaselineRateUSD": 18.60,
+    "commonUnbundlingRisk": false
+  },
+  {
     "code": "85025",
     "category": "Pathology & Laboratory",
     "description": "Complete blood count (CBC) with automated differential",
@@ -80,6 +258,62 @@
     "medicareBaselineRateUSD": 8.75,
     "commonUnbundlingRisk": true,
     "unbundlingWarning": "Constituent hematology tests (85004, 85048) are bundled within 85025"
+  },
+  {
+    "code": "85610",
+    "category": "Pathology & Laboratory",
+    "description": "Prothrombin time (PT/INR)",
+    "nationalMedianCashPriceUSD": 25,
+    "medicareBaselineRateUSD": 4.70,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "87880",
+    "category": "Pathology & Laboratory",
+    "description": "Infectious agent antigen detection; Streptococcus, group A (rapid strep test)",
+    "nationalMedianCashPriceUSD": 30,
+    "medicareBaselineRateUSD": 12.40,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "93000",
+    "category": "Cardiology & Pulmonary",
+    "description": "Electrocardiogram, routine ECG with at least 12 leads; with interpretation and report",
+    "nationalMedianCashPriceUSD": 75,
+    "medicareBaselineRateUSD": 15.80,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "93306",
+    "category": "Cardiology & Pulmonary",
+    "description": "Echocardiography, transthoracic, real-time with image documentation, with Doppler echocardiography",
+    "nationalMedianCashPriceUSD": 680,
+    "medicareBaselineRateUSD": 182.40,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "94010",
+    "category": "Cardiology & Pulmonary",
+    "description": "Spirometry, including graphic record, total and timed vital capacity",
+    "nationalMedianCashPriceUSD": 95,
+    "medicareBaselineRateUSD": 28.30,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "95810",
+    "category": "Cardiology & Pulmonary",
+    "description": "Polysomnography; age 6 years or older, sleep staging with 4 or more additional parameters",
+    "nationalMedianCashPriceUSD": 980,
+    "medicareBaselineRateUSD": 520.00,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "43239",
+    "category": "Gastroenterology / Surgery",
+    "description": "Esophagogastroduodenoscopy (EGD), flexible, transoral; with biopsy, single or multiple",
+    "nationalMedianCashPriceUSD": 1450,
+    "medicareBaselineRateUSD": 395.00,
+    "commonUnbundlingRisk": false
   },
   {
     "code": "45378",
@@ -90,6 +324,62 @@
     "commonUnbundlingRisk": false
   },
   {
+    "code": "45380",
+    "category": "Gastroenterology / Surgery",
+    "description": "Colonoscopy, flexible; with biopsy, single or multiple",
+    "nationalMedianCashPriceUSD": 1550,
+    "medicareBaselineRateUSD": 425.00,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "47562",
+    "category": "Surgery",
+    "description": "Laparoscopy, surgical; cholecystectomy (gallbladder removal)",
+    "nationalMedianCashPriceUSD": 4800,
+    "medicareBaselineRateUSD": 1650.00,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "49505",
+    "category": "Surgery",
+    "description": "Repair initial inguinal hernia, age 5 years or older; reducible",
+    "nationalMedianCashPriceUSD": 3600,
+    "medicareBaselineRateUSD": 980.00,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "29881",
+    "category": "Surgery / Orthopedics",
+    "description": "Arthroscopy, knee, surgical; with meniscectomy (medial or lateral)",
+    "nationalMedianCashPriceUSD": 3400,
+    "medicareBaselineRateUSD": 920.00,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "27447",
+    "category": "Surgery / Orthopedics",
+    "description": "Arthroplasty, knee, condyle and plateau; medial and lateral compartments (total knee replacement)",
+    "nationalMedianCashPriceUSD": 12500,
+    "medicareBaselineRateUSD": 4200.00,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "27130",
+    "category": "Surgery / Orthopedics",
+    "description": "Arthroplasty, acetabular and proximal femoral prosthetic replacement (total hip replacement)",
+    "nationalMedianCashPriceUSD": 13200,
+    "medicareBaselineRateUSD": 4450.00,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "66984",
+    "category": "Surgery / Ophthalmology",
+    "description": "Extracapsular cataract removal with insertion of intraocular lens prosthesis (one stage)",
+    "nationalMedianCashPriceUSD": 2200,
+    "medicareBaselineRateUSD": 680.00,
+    "commonUnbundlingRisk": false
+  },
+  {
     "code": "59400",
     "category": "Obstetrics & Delivery",
     "description": "Routine obstetric care including antepartum care, vaginal delivery, postpartum care",
@@ -97,5 +387,30 @@
     "medicareBaselineRateUSD": 1820.00,
     "commonUnbundlingRisk": true,
     "unbundlingWarning": "Global obstetric package includes antepartum visits, delivery, and postpartum care"
+  },
+  {
+    "code": "59510",
+    "category": "Obstetrics & Delivery",
+    "description": "Routine obstetric care including antepartum care, cesarean delivery, and postpartum care",
+    "nationalMedianCashPriceUSD": 4100,
+    "medicareBaselineRateUSD": 2180.00,
+    "commonUnbundlingRisk": true,
+    "unbundlingWarning": "Global cesarean obstetric package includes antepartum visits, delivery, and postpartum care"
+  },
+  {
+    "code": "97110",
+    "category": "Therapy & Rehabilitation",
+    "description": "Therapeutic procedure, 1 or more areas, each 15 minutes; therapeutic exercises",
+    "nationalMedianCashPriceUSD": 65,
+    "medicareBaselineRateUSD": 26.80,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "97140",
+    "category": "Therapy & Rehabilitation",
+    "description": "Manual therapy techniques (e.g. mobilization/manipulation), 1 or more regions, each 15 minutes",
+    "nationalMedianCashPriceUSD": 60,
+    "medicareBaselineRateUSD": 24.20,
+    "commonUnbundlingRisk": false
   }
 ]

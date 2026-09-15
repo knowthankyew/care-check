@@ -209,6 +209,47 @@ body {
   border-color: var(--rose-primary);
 }
 
+/* Non-Waivable UPL Disclaimer Banner & Footer */
+.upl-global-banner {
+  max-width: 1720px;
+  margin: 10px auto 0;
+  padding: 0 24px;
+  width: 100%;
+}
+
+.upl-global-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.upl-global-inner strong {
+  color: var(--amber-primary);
+}
+
+.app-upl-footer {
+  max-width: 1720px;
+  margin: 0 auto;
+  padding: 16px 24px 28px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  width: 100%;
+}
+
+.app-upl-footer .upl-subtext {
+  font-size: 0.7rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
 /* 3-Column Studio Grid */
 .studio-grid {
   display: grid;

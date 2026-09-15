@@ -1,7 +1,7 @@
 {
   "name": "carecheck",
-  "version": "0.1.0",
-  "description": "An open-source medical bill audit and Section 501(r) charity care reality engine. 100% local-first, zero personal data extraction.",
+  "version": "1.0.0",
+  "description": "Open-source, local-first medical bill audit and Section 501(r) charity care engine",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,13 +14,13 @@
   },
   "keywords": [
     "medical-debt",
-    "charity-care",
-    "501r",
-    "price-transparency",
     "healthcare",
+    "section-501r",
     "local-first",
     "privacy-first",
-    "notebookllm"
+    "typescript",
+    "charity-care",
+    "price-transparency"
   ],
   "author": "CareCheck Contributors",
   "license": "MIT",

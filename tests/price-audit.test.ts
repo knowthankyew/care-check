@@ -112,4 +112,64 @@ describe('PriceAuditEngine', () => {
     // When patient qualifies for 100% forgiveness under 501(r), settlement ceiling must be $0.00
     expect(result.recommendedFairSettlementUSD).toBe(0);
   });
+
+  it('correctly cross-references expanded CMS shoppable benchmark codes across categories', () => {
+    const shoppableBill: ItemizedMedicalBill = {
+      id: 'bill-expanded',
+      accountNumber: 'ACC-SHOPPABLE',
+      hospitalId: 'generic-hospital',
+      hospitalName: 'Community Hospital',
+      patientName: 'Alex Doe',
+      statementDate: '2026-09-01',
+      hasItemizedBreakdown: true,
+      totalBilledCharge: 4200,
+      totalInsurancePaid: 0,
+      totalPatientResponsibility: 4200,
+      lineItems: [
+        {
+          id: 'line-ct',
+          codeType: 'CPT',
+          code: '74177', // CT Abdomen/Pelvis w/ contrast (Benchmark cash: $780, Medicare: $198.50)
+          description: 'CT Scan Abdomen & Pelvis',
+          quantity: 1,
+          billedCharge: 2800,
+          patientResponsibility: 2800,
+        },
+        {
+          id: 'line-bmp',
+          codeType: 'CPT',
+          code: '80048', // BMP (Benchmark cash: $35, Bundling risk)
+          description: 'Basic Metabolic Panel',
+          quantity: 1,
+          billedCharge: 350,
+          patientResponsibility: 350,
+        },
+        {
+          id: 'line-echo',
+          codeType: 'CPT',
+          code: '93306', // Transthoracic Echocardiogram (Benchmark cash: $680)
+          description: 'Complete Echocardiogram',
+          quantity: 1,
+          billedCharge: 1050,
+          patientResponsibility: 1050,
+        },
+      ],
+    };
+
+    const audit = auditMedicalBill(shoppableBill);
+    const ctAudit = audit.lineItemAudits.find((l) => l.code === '74177')!;
+    const bmpAudit = audit.lineItemAudits.find((l) => l.code === '80048')!;
+    const echoAudit = audit.lineItemAudits.find((l) => l.code === '93306')!;
+
+    expect(ctAudit.hospitalCashPrice).toBe(780);
+    expect(ctAudit.flags).toContain('EXCEEDS_CASH_PRICE');
+    expect(ctAudit.potentialSavingsUSD).toBe(2800 - 780);
+
+    expect(bmpAudit.hospitalCashPrice).toBe(35);
+    expect(bmpAudit.flags).toContain('POTENTIAL_UNBUNDLED_CODE');
+
+    expect(echoAudit.hospitalCashPrice).toBe(680);
+    expect(echoAudit.potentialSavingsUSD).toBe(1050 - 680);
+  });
 });
+
