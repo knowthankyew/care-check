@@ -199,8 +199,10 @@ export const App: React.FC = () => {
   }, [currentHospital, householdSize, annualIncome, bill.totalPatientResponsibility, bill.statementDate]);
 
   const auditResult = useMemo(() => {
-    return auditMedicalBill(bill);
-  }, [bill]);
+    return auditMedicalBill(bill, {
+      charityCareAssessment: charityAssessment,
+    });
+  }, [bill, charityAssessment]);
 
   // Update line items
   const handleUpdateLineItems = (items: BillLineItem[]) => {
@@ -215,11 +217,36 @@ export const App: React.FC = () => {
 
   // Instant Burn All Data command
   const handlePurgeData = () => {
-    if (confirm('Burn all local data? This will immediately wipe all loaded bills, session state, and cached calculations from your device.')) {
-      localStorage.clear();
-      sessionStorage.clear();
-      handleScenarioChange('custom');
-      alert('All local state burned. Zero records remain on this machine.');
+    if (confirm('Burn all local data? This will immediately wipe all loaded bills, in-memory state, and caches from your device.')) {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+        if (typeof window !== 'undefined' && 'caches' in window) {
+          window.caches.keys().then((keys) => {
+            keys.forEach((k) => window.caches.delete(k));
+          });
+        }
+      } catch {
+        // Silently ignore storage errors
+      }
+      // Purge in-memory state
+      setHouseholdSize(1);
+      setAnnualIncome(0);
+      setBill({
+        id: 'cleared-session',
+        accountNumber: 'CLEARED',
+        hospitalId: 'cleveland-clinic-main',
+        hospitalName: 'The Cleveland Clinic Foundation',
+        patientName: '',
+        statementDate: new Date().toISOString().slice(0, 10),
+        hasItemizedBreakdown: true,
+        totalBilledCharge: 0,
+        totalInsurancePaid: 0,
+        totalPatientResponsibility: 0,
+        lineItems: [],
+      });
+      setScenarioId('custom');
+      alert('All local state and in-memory data burned. Zero records remain on this device.');
     }
   };
 

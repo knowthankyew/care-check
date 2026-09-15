@@ -153,7 +153,7 @@ The submission of this application triggers an immediate statutory hold on all c
 ### Request for Relief
 I respectfully request that you:
 1. Immediately place this account on a collection hold and suspend any third-party debt collection activities.
-2. Review the enclosed verification materials and adjust the outstanding balance to reflecting the qualifying ${expectedDiscount} financial assistance reduction.
+2. Review the enclosed verification materials and adjust the outstanding balance to reflect the qualifying ${expectedDiscount} financial assistance reduction.
 3. Provide written confirmation of the adjusted or discharged balance within thirty (30) business days.
 
 Thank you for your prompt attention to this matter.
@@ -189,7 +189,7 @@ function generateAuditDisputeMarkdown(
         : item.medicareBaselineRate
         ? `Medicare: $${item.medicareBaselineRate.toFixed(2)}`
         : 'N/A';
-      return `| ${item.code} | ${item.description} | $${item.billedCharge.toFixed(2)} | ${benchmarkStr} | ${item.explanation} |`;
+      return `| ${item.code} | ${escapePipe(item.description)} | $${item.billedCharge.toFixed(2)} | ${benchmarkStr} | ${escapePipe(item.explanation)} |`;
     }).join('\n');
   }
 
@@ -226,12 +226,13 @@ ${itemsTable || 'The itemized charges contain unbundled line items and exceed pu
 
 ${patientNotes ? `### 2. Patient Statement\n${patientNotes}\n` : ''}
 ### ${patientNotes ? '3' : '2'}. Statutory Basis & Dispute Demand
-Under **45 CFR Part 180**, hospitals are required to make public their standard charges and discounted cash prices. Billed amounts exceeding publicly posted discounted cash rates for uninsured or self-pay accounts violate the spirit and letter of federal price transparency rules.
+Under **45 CFR Part 180**, hospitals are required to make public their standard charges and discounted cash prices. Billed amounts exceeding publicly posted discounted cash rates for uninsured or self-pay accounts violate federal price transparency mandates.
 
-Furthermore, under the **Fair Debt Collection Practices Act (15 U.S.C. § 1692g)** and state consumer protection acts, I demand:
-1. Immediate cessation of any collection attempts while this billing dispute remains unresolved.
+Furthermore, under Section 501(r)(6) of the Internal Revenue Code (26 U.S.C. § 501(r)(6)) and federal consumer protection standards, I demand:
+1. Immediate cessation of any collection attempts or referral to third-party collection agencies while this billing dispute remains unresolved.
 2. A corrected billing statement reducing all billed line items to the published discounted cash rate or fair baseline of **${fairTarget}**.
 3. A detailed coding justification for any disputed or unbundled charges.
+4. If this account has already been referred or assigned to a third-party collection agency, please be advised that this notice constitutes a formal dispute requiring immediate cessation of collection activities under the Fair Debt Collection Practices Act (15 U.S.C. § 1692g) until full verification is furnished.
 
 Please provide your formal written response within thirty (30) business days.
 
@@ -304,24 +305,84 @@ Date: ${letterDate}
 }
 
 function wrapInPrintableHtml(title: string, markdown: string): string {
-  // Convert simple markdown into clean, printable semantic HTML
   const lines = markdown.split('\n');
   const htmlLines: string[] = [];
+  let inTable = false;
+  let inThead = false;
+  let inTbody = false;
 
-  for (const line of lines) {
-    if (line.startsWith('### ')) {
-      htmlLines.push(`<h3>${escapeHtml(line.slice(4))}</h3>`);
-    } else if (line.startsWith('## ')) {
-      htmlLines.push(`<h2>${escapeHtml(line.slice(3))}</h2>`);
-    } else if (line.startsWith('# ')) {
-      htmlLines.push(`<h1>${escapeHtml(line.slice(2))}</h1>`);
-    } else if (line.startsWith('- ')) {
-      htmlLines.push(`<li>${formatInline(escapeHtml(line.slice(2)))}</li>`);
-    } else if (line.trim() === '') {
+  for (let i = 0; i < lines.length; i++) {
+    const rawLine = lines[i] || '';
+    const trimmed = rawLine.trim();
+
+    // Check if line is a table row
+    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      const cells = trimmed
+        .slice(1, -1)
+        .split('|')
+        .map((c) => c.trim());
+
+      // Is it a header separator like |---|---| ?
+      const isSeparator = cells.every((c) => /^:?-+:?$/.test(c));
+
+      if (isSeparator) {
+        if (inThead) {
+          htmlLines.push('</thead><tbody>');
+          inThead = false;
+          inTbody = true;
+        }
+        continue;
+      }
+
+      if (!inTable) {
+        inTable = true;
+        inThead = true;
+        htmlLines.push('<table><thead><tr>');
+        for (const cell of cells) {
+          htmlLines.push(`<th>${formatInline(escapeHtml(cell))}</th>`);
+        }
+        htmlLines.push('</tr>');
+        continue;
+      }
+
+      // Regular body row
+      htmlLines.push('<tr>');
+      for (const cell of cells) {
+        htmlLines.push(`<td>${formatInline(escapeHtml(cell))}</td>`);
+      }
+      htmlLines.push('</tr>');
+      continue;
+    }
+
+    // If we were in a table and this line is not a table row, close table
+    if (inTable) {
+      if (inThead) htmlLines.push('</thead>');
+      if (inTbody) htmlLines.push('</tbody>');
+      htmlLines.push('</table>');
+      inTable = false;
+      inThead = false;
+      inTbody = false;
+    }
+
+    if (trimmed.startsWith('### ')) {
+      htmlLines.push(`<h3>${formatInline(escapeHtml(trimmed.slice(4)))}</h3>`);
+    } else if (trimmed.startsWith('## ')) {
+      htmlLines.push(`<h2>${formatInline(escapeHtml(trimmed.slice(3)))}</h2>`);
+    } else if (trimmed.startsWith('# ')) {
+      htmlLines.push(`<h1>${formatInline(escapeHtml(trimmed.slice(2)))}</h1>`);
+    } else if (trimmed.startsWith('- ')) {
+      htmlLines.push(`<li>${formatInline(escapeHtml(trimmed.slice(2)))}</li>`);
+    } else if (trimmed === '') {
       htmlLines.push('<br/>');
     } else {
-      htmlLines.push(`<p>${formatInline(escapeHtml(line))}</p>`);
+      htmlLines.push(`<p>${formatInline(escapeHtml(trimmed))}</p>`);
     }
+  }
+
+  if (inTable) {
+    if (inThead) htmlLines.push('</thead>');
+    if (inTbody) htmlLines.push('</tbody>');
+    htmlLines.push('</table>');
   }
 
   return `<!DOCTYPE html>
@@ -332,7 +393,7 @@ function wrapInPrintableHtml(title: string, markdown: string): string {
   <style>
     @media print {
       body { margin: 0; padding: 20mm; font-size: 11pt; color: #000; }
-      .no-print { display: none; }
+      .no-print { display: none !important; }
       @page { margin: 20mm; }
     }
     body {
@@ -347,11 +408,24 @@ function wrapInPrintableHtml(title: string, markdown: string): string {
     p, li { font-size: 14px; }
     table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 12px; }
     th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; }
-    th { background: #f1f5f9; }
+    th { background: #f1f5f9; font-weight: 600; }
     strong { color: #0f172a; }
+    .upl-disclaimer {
+      margin-bottom: 24px;
+      padding: 12px 16px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      font-size: 11px;
+      color: #64748b;
+      border-radius: 6px;
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body>
+  <div class="upl-disclaimer no-print">
+    <strong>Notice & Self-Advocacy Disclaimer:</strong> This document was prepared using the CareCheck open-source reality engine for self-advocacy and informational purposes only and does not constitute formal legal advice. Consult a licensed attorney or accredited patient advocate for legal representation.
+  </div>
   ${htmlLines.join('\n')}
 </body>
 </html>`;
@@ -362,6 +436,10 @@ function escapeHtml(text: string): string {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+function escapePipe(text: string): string {
+  return text.replace(/\|/g, '-');
 }
 
 function formatInline(text: string): string {

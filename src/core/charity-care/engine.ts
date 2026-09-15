@@ -87,14 +87,13 @@ export function assessCharityCareEligibility(
   }
 
   // Evaluate FAP Tiers
-  // Sort tiers ascending by maxFplPercent to find the best qualifying tier
+  // Sort tiers ascending by maxFplPercent to find the qualifying tier
   const sortedTiers = [...hospital.fapTiers].sort(
     (a, b) => a.maxFplPercent - b.maxFplPercent
   );
 
-  let matchedTier = sortedTiers.find(
-    (tier) => fplPercent >= tier.minFplPercent && fplPercent <= tier.maxFplPercent
-  );
+  // Match lowest tier whose maxFplPercent covers the patient's FPL percentage
+  const matchedTier = sortedTiers.find((tier) => fplPercent <= tier.maxFplPercent);
 
   let tierType: CharityCareTierType = 'INELIGIBLE';
   let qualifyingTierName = 'No Policy Discount Available';
@@ -109,8 +108,14 @@ export function assessCharityCareEligibility(
     } else if (discountPercentage > 0) {
       tierType = 'SLIDING_SCALE_DISCOUNT';
     }
-  } else if (!matchedTier && hospital.agbDiscountPercent && hospital.agbDiscountPercent > 0) {
+  } else if (
+    assetTestPassed &&
+    params.isUninsured !== false &&
+    hospital.agbDiscountPercent &&
+    hospital.agbDiscountPercent > 0
+  ) {
     // Uninsured fallback: AGB limitation under 26 U.S.C. § 501(r)(5)
+    // Only applies if patient passed asset review (if required) and is uninsured
     tierType = 'UNINSURED_AGB_DISCOUNT';
     discountPercentage = hospital.agbDiscountPercent;
     qualifyingTierName = `Amounts Generally Billed (AGB) Cap (${hospital.agbDiscountPercent}% Discount)`;
@@ -125,11 +130,13 @@ export function assessCharityCareEligibility(
   );
 
   // Safe Harbor & Timelines under 26 U.S.C. § 501(r)(6)
-  const stmtDate = new Date(statementDate);
-  const today = new Date();
-  const daysElapsed = Math.floor(
-    (today.getTime() - stmtDate.getTime()) / (1000 * 60 * 60 * 24)
-  );
+  // Normalize to UTC midnight to avoid Daylight Saving Time (DST) 23h/25h transition hazards
+  const dateOnlyStr = statementDate.slice(0, 10);
+  const stmtDateUTC = new Date(`${dateOnlyStr}T00:00:00.000Z`);
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayUTC = new Date(`${todayStr}T00:00:00.000Z`);
+  const msDiff = todayUTC.getTime() - stmtDateUTC.getTime();
+  const daysElapsed = Math.max(0, Math.round(msDiff / (1000 * 60 * 60 * 24)));
   const windowDays = hospital.fapApplicationWindowDays || 240;
   const daysRemaining = Math.max(0, windowDays - daysElapsed);
   const ecaSafeHarborActive = daysRemaining > 0;

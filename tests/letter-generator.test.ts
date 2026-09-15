@@ -51,6 +51,7 @@ describe('LetterGeneratorEngine', () => {
     expect(doc.markdownContent).toContain('136.5% FPL');
     expect(doc.markdownContent).toContain('100% Relief');
     expect(doc.markdownContent).toContain('sudden reduction in work hours');
+    expect(doc.markdownContent).toContain('adjust the outstanding balance to reflect the qualifying');
     expect(doc.statutoryCitations.length).toBeGreaterThanOrEqual(4);
     expect(doc.mailingInstructions[0]).toContain('Certified Mail');
   });
@@ -73,5 +74,52 @@ describe('LetterGeneratorEngine', () => {
     expect(comprehensiveDoc.title).toContain('Demand for 501(r) Financial Assistance & Price Audit Dispute');
     expect(comprehensiveDoc.markdownContent).toContain('Safe Harbor Invocation Under 26 U.S.C. § 501(r)(6)');
     expect(comprehensiveDoc.markdownContent).toContain('Price Audit & Chargemaster Inflation Findings');
+  });
+
+  it('renders markdown tables as valid HTML tables and includes UPL disclaimer', () => {
+    const auditPayload: DisputeLetterPayload = {
+      ...samplePayload,
+      letterType: 'PRICE_TRANSPARENCY_AUDIT_DISPUTE',
+      auditResult: {
+        billId: 'bill-1',
+        hospitalId: 'cleveland-clinic-main',
+        hospitalName: 'Cleveland Clinic',
+        totalBilledCharge: 3500,
+        totalPatientResponsibility: 3500,
+        totalPotentialSavingsUSD: 2050,
+        recommendedFairSettlementUSD: 1450,
+        summaryFlags: ['EXCEEDS_CASH_PRICE'],
+        hasHighSeverityDiscrepancy: true,
+        auditTimestamp: '2026-09-01T00:00:00Z',
+        lineItemAudits: [
+          {
+            lineItemId: 'line-1',
+            code: '99285',
+            description: 'ER Level 5',
+            billedCharge: 3500,
+            hospitalCashPrice: 1450,
+            medicareBaselineRate: 204.6,
+            markupMultiplier: 17.1,
+            flags: ['EXCEEDS_CASH_PRICE'],
+            potentialSavingsUSD: 2050,
+            explanation: 'Billed charge exceeds cash rate.',
+          },
+        ],
+      },
+    };
+
+    const doc = generateDisputeLetter(auditPayload);
+
+    // Verify HTML table tags are properly parsed
+    expect(doc.htmlContent).toContain('<table><thead><tr>');
+    expect(doc.htmlContent).toContain('<th>Code</th>');
+    expect(doc.htmlContent).toContain('<tbody>');
+    expect(doc.htmlContent).toContain('<tr>');
+    expect(doc.htmlContent).toContain('<td>99285</td>');
+    expect(doc.htmlContent).toContain('</table>');
+
+    // Verify UPL disclaimer is present
+    expect(doc.htmlContent).toContain('Notice & Self-Advocacy Disclaimer');
+    expect(doc.htmlContent).toContain('does not constitute formal legal advice');
   });
 });

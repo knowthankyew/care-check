@@ -82,4 +82,34 @@ describe('PriceAuditEngine', () => {
     expect(line1Audit.hospitalCashPrice).toBe(1200);
     expect(line1Audit.potentialSavingsUSD).toBe(2300); // 3500 - 1200
   });
+
+  it('caps settlement target with charity care assessment relief', () => {
+    const mockAssessment = {
+      hospitalId: 'cleveland-clinic-main',
+      hospitalLegalName: 'Cleveland Clinic',
+      evaluationDate: '2026-09-01T00:00:00Z',
+      householdSize: 2,
+      annualHouseholdIncome: 25000,
+      fplThresholdUSD: 21980,
+      fplPercentage: 113.7,
+      tierType: 'FULL_FORGIVENESS' as const,
+      qualifyingTierName: '100% Charity Care',
+      discountPercentage: 100,
+      originalPatientBalanceUSD: 6350,
+      adjustedPatientBalanceUSD: 0,
+      totalForgivenAmountUSD: 6350,
+      assetTestPassed: true,
+      ecaSafeHarborActive: true,
+      daysRemainingInApplicationWindow: 200,
+      requiredDocumentsChecklist: [],
+      legalProtectionsSummary: [],
+    };
+
+    const result = auditMedicalBill(sampleBill, {
+      charityCareAssessment: mockAssessment,
+    });
+
+    // When patient qualifies for 100% forgiveness under 501(r), settlement ceiling must be $0.00
+    expect(result.recommendedFairSettlementUSD).toBe(0);
+  });
 });

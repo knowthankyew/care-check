@@ -111,34 +111,72 @@ describe('CharityCareEngine - 501(r) Eligibility Assessment', () => {
     expect(assessment.adjustedPatientBalanceUSD).toBe(3300);
   });
 
-  it('properly evaluates Mayo Clinic asset test constraint', () => {
-    // Income qualifies for 100% (< 200% FPL), but liquid assets > $10,000
-    const failedAssetAssessment = assessCharityCareEligibility({
+  it('properly matches tier seam at 250.50% FPL without gap', () => {
+    // Household of 1: threshold $16,200.
+    // Income of $40,581 = 250.50% FPL. Under the previous gap bug, this fell through.
+    const assessment = assessCharityCareEligibility({
+      hospital: clevelandClinic,
+      householdSize: 1,
+      annualHouseholdIncome: 40581,
+      totalPatientBalance: 10000,
+      statementDate: new Date().toISOString().split('T')[0]!,
+      evaluationYear: 2026,
+    });
+
+    expect(assessment.fplPercentage).toBe(250.5);
+    // Should match Tier 2 (75% discount)
+    expect(assessment.tierType).toBe('SLIDING_SCALE_DISCOUNT');
+    expect(assessment.discountPercentage).toBe(75);
+    expect(assessment.adjustedPatientBalanceUSD).toBe(2500);
+  });
+
+  it('blocks AGB fallback when asset test fails', () => {
+    // Mayo Clinic: patient exceeds asset test AND income exceeds 400% FPL ($70k income, $30k assets)
+    const assessment = assessCharityCareEligibility({
       hospital: mayoClinic,
       householdSize: 1,
-      annualHouseholdIncome: 20000, // ~123% FPL
-      liquidAssetsUSD: 25000, // exceeds $10k limit
+      annualHouseholdIncome: 70000,
+      liquidAssetsUSD: 30000,
+      totalPatientBalance: 10000,
+      statementDate: new Date().toISOString().split('T')[0]!,
+      evaluationYear: 2026,
+    });
+
+    expect(assessment.assetTestPassed).toBe(false);
+    expect(assessment.tierType).toBe('INELIGIBLE');
+    expect(assessment.discountPercentage).toBe(0);
+    expect(assessment.adjustedPatientBalanceUSD).toBe(10000);
+  });
+
+  it('does not apply AGB fallback to insured patients who exceed FAP tiers', () => {
+    const assessment = assessCharityCareEligibility({
+      hospital: clevelandClinic,
+      householdSize: 1,
+      annualHouseholdIncome: 85000, // > 400% FPL
+      isUninsured: false, // Patient has commercial insurance
       totalPatientBalance: 5000,
       statementDate: new Date().toISOString().split('T')[0]!,
       evaluationYear: 2026,
     });
 
-    expect(failedAssetAssessment.assetTestPassed).toBe(false);
-    expect(failedAssetAssessment.assetTestNotes).toContain('exceed hospital exemption limit');
+    expect(assessment.tierType).toBe('INELIGIBLE');
+    expect(assessment.discountPercentage).toBe(0);
+    expect(assessment.adjustedPatientBalanceUSD).toBe(5000);
+  });
 
-    // With assets within limit ($5,000)
-    const passedAssetAssessment = assessCharityCareEligibility({
-      hospital: mayoClinic,
+  it('calculates 240-day safe harbor accurately with UTC normalization across DST transitions', () => {
+    // Set statement date exactly 100 days ago
+    const pastDate = new Date(Date.now() - 100 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+    const assessment = assessCharityCareEligibility({
+      hospital: clevelandClinic,
       householdSize: 1,
-      annualHouseholdIncome: 20000,
-      liquidAssetsUSD: 5000,
-      totalPatientBalance: 5000,
-      statementDate: new Date().toISOString().split('T')[0]!,
+      annualHouseholdIncome: 30000,
+      totalPatientBalance: 2000,
+      statementDate: pastDate,
       evaluationYear: 2026,
     });
 
-    expect(passedAssetAssessment.assetTestPassed).toBe(true);
-    expect(passedAssetAssessment.tierType).toBe('FULL_FORGIVENESS');
-    expect(passedAssetAssessment.adjustedPatientBalanceUSD).toBe(0);
+    expect(assessment.ecaSafeHarborActive).toBe(true);
+    expect(assessment.daysRemainingInApplicationWindow).toBe(140);
   });
 });

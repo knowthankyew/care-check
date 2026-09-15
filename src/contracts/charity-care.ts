@@ -18,6 +18,7 @@ export interface CharityCareAssessmentParams {
   liquidAssetsUSD?: number;
   totalPatientBalance: number;
   statementDate: string; // YYYY-MM-DD
+  isUninsured?: boolean; // Defaults to true; statutory AGB limitation applies to uninsured
   region?: PovertyRegion;
   evaluationYear?: number;
 }

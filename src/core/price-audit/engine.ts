@@ -10,6 +10,7 @@ import type {
   PriceAuditResult,
   PriceDiscrepancyType,
 } from '../../contracts/audit.js';
+import type { CharityCareAssessment } from '../../contracts/charity-care.js';
 import benchmarksData from '../../../data/benchmarks/shoppable-codes.json' with { type: 'json' };
 
 interface BenchmarkItem {
@@ -30,6 +31,7 @@ for (const item of benchmarksData as BenchmarkItem[]) {
 export interface AuditOptions {
   customCashPricesByCode?: Record<string, number>; // Hospital-specific cash prices if known
   uninsuredAgBDiscountPercent?: number; // Hospital's AGB discount
+  charityCareAssessment?: CharityCareAssessment; // Cross-reference statutory 501(r) assistance
 }
 
 /**
@@ -131,9 +133,11 @@ export function auditMedicalBill(
     });
   }
 
-  const recommendedFairSettlementUSD = Number(
-    Math.min(bill.totalPatientResponsibility, totalFairBaselineUSD).toFixed(2)
-  );
+  let fairTarget = Math.min(bill.totalPatientResponsibility, totalFairBaselineUSD);
+  if (options.charityCareAssessment) {
+    fairTarget = Math.min(fairTarget, options.charityCareAssessment.adjustedPatientBalanceUSD);
+  }
+  const recommendedFairSettlementUSD = Number(fairTarget.toFixed(2));
 
   const hasHighSeverityDiscrepancy =
     aggregatedFlags.has('EXCEEDS_CASH_PRICE') ||

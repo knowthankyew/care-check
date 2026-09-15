@@ -20,7 +20,7 @@
       {
         "tierId": "tier-75",
         "name": "Sliding Scale Tier 1",
-        "minFplPercent": 251,
+        "minFplPercent": 250,
         "maxFplPercent": 300,
         "discountPercent": 75,
         "notes": "75% discount off gross charges or AGB equivalent"
@@ -28,7 +28,7 @@
       {
         "tierId": "tier-50",
         "name": "Sliding Scale Tier 2",
-        "minFplPercent": 301,
+        "minFplPercent": 300,
         "maxFplPercent": 400,
         "discountPercent": 50,
         "notes": "50% discount off gross charges or AGB equivalent"
@@ -68,16 +68,16 @@
       },
       {
         "tierId": "tier-80",
-        "name": "Sliding Scale Assistance (201-300% FPL)",
-        "minFplPercent": 201,
+        "name": "Sliding Scale Assistance (200-300% FPL)",
+        "minFplPercent": 200,
         "maxFplPercent": 300,
         "discountPercent": 80,
         "notes": "80% reduction on allowable balance"
       },
       {
         "tierId": "tier-60",
-        "name": "Sliding Scale Assistance (301-400% FPL)",
-        "minFplPercent": 301,
+        "name": "Sliding Scale Assistance (300-400% FPL)",
+        "minFplPercent": 300,
         "maxFplPercent": 400,
         "discountPercent": 60,
         "notes": "60% reduction on allowable balance"
@@ -118,10 +118,10 @@
       {
         "tierId": "tier-70",
         "name": "Partial Assistance Tier",
-        "minFplPercent": 251,
+        "minFplPercent": 250,
         "maxFplPercent": 400,
         "discountPercent": 70,
-        "notes": "70% reduction for income between 251% and 400% FPL"
+        "notes": "70% reduction for income between 250% and 400% FPL"
       }
     ],
     "agbDiscountPercent": 70,
@@ -158,10 +158,10 @@
       {
         "tierId": "tier-50",
         "name": "Sliding Scale MFA",
-        "minFplPercent": 301,
+        "minFplPercent": 300,
         "maxFplPercent": 400,
         "discountPercent": 50,
-        "notes": "50% reduction for 301% - 400% FPL"
+        "notes": "50% reduction for 300% - 400% FPL"
       }
     ],
     "agbDiscountPercent": 65,

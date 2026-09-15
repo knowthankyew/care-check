@@ -32,7 +32,7 @@ export interface PriceAuditResult {
   totalPatientResponsibility: number;
   totalPotentialSavingsUSD: number;
   
-  // Realistic, defensible settlement ceiling based on cash price or Medicare + 20%
+  // Realistic, defensible settlement ceiling based on cash price or Medicare + 25% (or 501(r) AGB/FAP cap)
   recommendedFairSettlementUSD: number;
 
   lineItemAudits: LineItemAuditVerdict[];
