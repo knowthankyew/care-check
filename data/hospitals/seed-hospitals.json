@@ -1,0 +1,180 @@
+[
+  {
+    "id": "cleveland-clinic-main",
+    "legalName": "The Cleveland Clinic Foundation",
+    "displayName": "Cleveland Clinic (Main Campus)",
+    "ein": "34-0714585",
+    "npi": "1043256789",
+    "cmsCertificationNumber": "360180",
+    "state": "OH",
+    "isTaxExempt501c3": true,
+    "fapTiers": [
+      {
+        "tierId": "tier-100",
+        "name": "100% Charity Care Assistance",
+        "minFplPercent": 0,
+        "maxFplPercent": 250,
+        "discountPercent": 100,
+        "notes": "Full balance forgiveness for household income at or below 250% FPL"
+      },
+      {
+        "tierId": "tier-75",
+        "name": "Sliding Scale Tier 1",
+        "minFplPercent": 251,
+        "maxFplPercent": 300,
+        "discountPercent": 75,
+        "notes": "75% discount off gross charges or AGB equivalent"
+      },
+      {
+        "tierId": "tier-50",
+        "name": "Sliding Scale Tier 2",
+        "minFplPercent": 301,
+        "maxFplPercent": 400,
+        "discountPercent": 50,
+        "notes": "50% discount off gross charges or AGB equivalent"
+      }
+    ],
+    "agbDiscountPercent": 67,
+    "fapApplicationWindowDays": 240,
+    "requiresAssetTest": false,
+    "billingContact": {
+      "department": "Patient Financial Services / Financial Assistance Office",
+      "mailingAddressLine1": "9500 Euclid Avenue",
+      "mailingAddressLine2": "Mail Code P24",
+      "city": "Cleveland",
+      "state": "OH",
+      "zipCode": "44195",
+      "phoneNumber": "(866) 621-6385",
+      "fapWebpageUrl": "https://my.clevelandclinic.org/patients/billing-finance/financial-assistance"
+    }
+  },
+  {
+    "id": "mayo-clinic-rochester",
+    "legalName": "Mayo Clinic Rochester",
+    "displayName": "Mayo Clinic (Rochester, MN)",
+    "ein": "41-6011702",
+    "npi": "1386629910",
+    "cmsCertificationNumber": "240010",
+    "state": "MN",
+    "isTaxExempt501c3": true,
+    "fapTiers": [
+      {
+        "tierId": "tier-100",
+        "name": "Full Charity Care Forgiveness",
+        "minFplPercent": 0,
+        "maxFplPercent": 200,
+        "discountPercent": 100,
+        "notes": "100% balance adjustment for household income up to 200% FPL"
+      },
+      {
+        "tierId": "tier-80",
+        "name": "Sliding Scale Assistance (201-300% FPL)",
+        "minFplPercent": 201,
+        "maxFplPercent": 300,
+        "discountPercent": 80,
+        "notes": "80% reduction on allowable balance"
+      },
+      {
+        "tierId": "tier-60",
+        "name": "Sliding Scale Assistance (301-400% FPL)",
+        "minFplPercent": 301,
+        "maxFplPercent": 400,
+        "discountPercent": 60,
+        "notes": "60% reduction on allowable balance"
+      }
+    ],
+    "agbDiscountPercent": 64,
+    "fapApplicationWindowDays": 240,
+    "requiresAssetTest": true,
+    "assetExemptionLimitUSD": 10000,
+    "billingContact": {
+      "department": "Mayo Clinic Patient Financial Services",
+      "mailingAddressLine1": "200 First Street SW",
+      "city": "Rochester",
+      "state": "MN",
+      "zipCode": "55905",
+      "phoneNumber": "(844) 217-9591",
+      "fapWebpageUrl": "https://www.mayoclinic.org/patient-visitor-guide/billing-insurance/financial-assistance"
+    }
+  },
+  {
+    "id": "ascension-health-national",
+    "legalName": "Ascension Health",
+    "displayName": "Ascension Health System",
+    "ein": "38-3486381",
+    "npi": "1992765432",
+    "cmsCertificationNumber": "140182",
+    "state": "MO",
+    "isTaxExempt501c3": true,
+    "fapTiers": [
+      {
+        "tierId": "tier-100",
+        "name": "100% Financial Assistance",
+        "minFplPercent": 0,
+        "maxFplPercent": 250,
+        "discountPercent": 100,
+        "notes": "100% reduction for income at or below 250% FPL"
+      },
+      {
+        "tierId": "tier-70",
+        "name": "Partial Assistance Tier",
+        "minFplPercent": 251,
+        "maxFplPercent": 400,
+        "discountPercent": 70,
+        "notes": "70% reduction for income between 251% and 400% FPL"
+      }
+    ],
+    "agbDiscountPercent": 70,
+    "fapApplicationWindowDays": 240,
+    "requiresAssetTest": false,
+    "billingContact": {
+      "department": "Patient Financial Counseling Department",
+      "mailingAddressLine1": "4600 Edmundson Road",
+      "city": "St. Louis",
+      "state": "MO",
+      "zipCode": "63134",
+      "phoneNumber": "(888) 888-2723",
+      "fapWebpageUrl": "https://healthcare.ascension.org/billing/financial-assistance"
+    }
+  },
+  {
+    "id": "kaiser-foundation-hospitals",
+    "legalName": "Kaiser Foundation Hospitals",
+    "displayName": "Kaiser Permanente (Northern & Southern CA)",
+    "ein": "94-1340523",
+    "npi": "1295748901",
+    "cmsCertificationNumber": "050512",
+    "state": "CA",
+    "isTaxExempt501c3": true,
+    "fapTiers": [
+      {
+        "tierId": "tier-100",
+        "name": "Medical Financial Assistance (MFA) 100%",
+        "minFplPercent": 0,
+        "maxFplPercent": 300,
+        "discountPercent": 100,
+        "notes": "100% forgiveness up to 300% FPL"
+      },
+      {
+        "tierId": "tier-50",
+        "name": "Sliding Scale MFA",
+        "minFplPercent": 301,
+        "maxFplPercent": 400,
+        "discountPercent": 50,
+        "notes": "50% reduction for 301% - 400% FPL"
+      }
+    ],
+    "agbDiscountPercent": 65,
+    "fapApplicationWindowDays": 240,
+    "requiresAssetTest": false,
+    "billingContact": {
+      "department": "Medical Financial Assistance Program",
+      "mailingAddressLine1": "P.O. Box 7083",
+      "city": "Pasadena",
+      "state": "CA",
+      "zipCode": "91109",
+      "phoneNumber": "(800) 390-3506",
+      "fapWebpageUrl": "https://healthy.kaiserpermanente.org/support/pay-bills/financial-assistance"
+    }
+  }
+]

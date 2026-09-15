@@ -1,0 +1,101 @@
+[
+  {
+    "code": "99281",
+    "category": "Emergency Room Visit",
+    "description": "Emergency department visit, level 1 (minor/straightforward)",
+    "nationalMedianCashPriceUSD": 120,
+    "medicareBaselineRateUSD": 24.50,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "99282",
+    "category": "Emergency Room Visit",
+    "description": "Emergency department visit, level 2 (low-to-moderate severity)",
+    "nationalMedianCashPriceUSD": 210,
+    "medicareBaselineRateUSD": 45.80,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "99283",
+    "category": "Emergency Room Visit",
+    "description": "Emergency department visit, level 3 (moderate severity)",
+    "nationalMedianCashPriceUSD": 450,
+    "medicareBaselineRateUSD": 75.30,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "99284",
+    "category": "Emergency Room Visit",
+    "description": "Emergency department visit, level 4 (high severity, no immediate threat)",
+    "nationalMedianCashPriceUSD": 850,
+    "medicareBaselineRateUSD": 138.20,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "99285",
+    "category": "Emergency Room Visit",
+    "description": "Emergency department visit, level 5 (high severity, immediate threat)",
+    "nationalMedianCashPriceUSD": 1450,
+    "medicareBaselineRateUSD": 204.60,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "70450",
+    "category": "Radiology / CT Scan",
+    "description": "Computed tomography, head or brain; without contrast material",
+    "nationalMedianCashPriceUSD": 420,
+    "medicareBaselineRateUSD": 98.40,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "71250",
+    "category": "Radiology / CT Scan",
+    "description": "Computed tomography, thorax; without contrast material",
+    "nationalMedianCashPriceUSD": 510,
+    "medicareBaselineRateUSD": 112.50,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "73721",
+    "category": "Radiology / MRI",
+    "description": "Magnetic resonance imaging, any joint of lower extremity; without contrast",
+    "nationalMedianCashPriceUSD": 650,
+    "medicareBaselineRateUSD": 185.00,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "80053",
+    "category": "Pathology & Laboratory",
+    "description": "Comprehensive metabolic panel (14 clinical chemistry tests)",
+    "nationalMedianCashPriceUSD": 45,
+    "medicareBaselineRateUSD": 11.20,
+    "commonUnbundlingRisk": true,
+    "unbundlingWarning": "Do not bill individual tests (e.g. 82040 Albumin, 82247 Bilirubin) separately when CMP is performed"
+  },
+  {
+    "code": "85025",
+    "category": "Pathology & Laboratory",
+    "description": "Complete blood count (CBC) with automated differential",
+    "nationalMedianCashPriceUSD": 30,
+    "medicareBaselineRateUSD": 8.75,
+    "commonUnbundlingRisk": true,
+    "unbundlingWarning": "Constituent hematology tests (85004, 85048) are bundled within 85025"
+  },
+  {
+    "code": "45378",
+    "category": "Gastroenterology / Surgery",
+    "description": "Colonoscopy, flexible; diagnostic, with or without collection of specimen",
+    "nationalMedianCashPriceUSD": 1350,
+    "medicareBaselineRateUSD": 360.00,
+    "commonUnbundlingRisk": false
+  },
+  {
+    "code": "59400",
+    "category": "Obstetrics & Delivery",
+    "description": "Routine obstetric care including antepartum care, vaginal delivery, postpartum care",
+    "nationalMedianCashPriceUSD": 3200,
+    "medicareBaselineRateUSD": 1820.00,
+    "commonUnbundlingRisk": true,
+    "unbundlingWarning": "Global obstetric package includes antepartum visits, delivery, and postpartum care"
+  }
+]

@@ -1,0 +1,61 @@
+{
+  "version": "1.0.0",
+  "source": "U.S. Department of Health and Human Services (HHS) Annual Poverty Guidelines",
+  "statutoryBasis": "42 U.S.C. § 9902(2)",
+  "guidelines": [
+    {
+      "year": 2024,
+      "effectiveDate": "2024-01-17",
+      "regions": {
+        "contiguous": {
+          "baseAmount": 15060,
+          "incrementPerPerson": 5380
+        },
+        "alaska": {
+          "baseAmount": 18810,
+          "incrementPerPerson": 6730
+        },
+        "hawaii": {
+          "baseAmount": 17310,
+          "incrementPerPerson": 6190
+        }
+      }
+    },
+    {
+      "year": 2025,
+      "effectiveDate": "2025-01-15",
+      "regions": {
+        "contiguous": {
+          "baseAmount": 15650,
+          "incrementPerPerson": 5580
+        },
+        "alaska": {
+          "baseAmount": 19550,
+          "incrementPerPerson": 6980
+        },
+        "hawaii": {
+          "baseAmount": 17990,
+          "incrementPerPerson": 6420
+        }
+      }
+    },
+    {
+      "year": 2026,
+      "effectiveDate": "2026-01-14",
+      "regions": {
+        "contiguous": {
+          "baseAmount": 16200,
+          "incrementPerPerson": 5780
+        },
+        "alaska": {
+          "baseAmount": 20240,
+          "incrementPerPerson": 7230
+        },
+        "hawaii": {
+          "baseAmount": 18630,
+          "incrementPerPerson": 6650
+        }
+      }
+    }
+  ]
+}
