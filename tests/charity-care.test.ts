@@ -217,4 +217,86 @@ describe('CharityCareEngine - 501(r) Eligibility Assessment', () => {
     expect(negHhRes.householdSize).toBe(1);
     expect(negHhRes.povertyPercentage).toBe(100);
   });
+
+  it('correctly evaluates user-configured custom hospital policy and custom tier brackets', () => {
+    const customHospital: HospitalProfile = {
+      id: 'custom-community-hospital',
+      legalName: 'Community Memorial Hospital, Inc.',
+      displayName: 'Community Memorial Hospital',
+      ein: '12-3456789',
+      state: 'PA',
+      isTaxExempt501c3: true,
+      dataVerificationStatus: 'CUSTOM_USER_POLICY',
+      fapApplicationWindowDays: 240,
+      requiresAssetTest: false,
+      agbDiscountPercent: 72,
+      fapTiers: [
+        {
+          tierId: 'custom-tier-1',
+          name: '100% Full Community Relief',
+          minFplPercent: 0,
+          maxFplPercent: 300,
+          discountPercent: 100,
+        },
+        {
+          tierId: 'custom-tier-2',
+          name: '60% Partial Relief Tier',
+          minFplPercent: 300,
+          maxFplPercent: 450,
+          discountPercent: 60,
+        },
+      ],
+      billingContact: {
+        department: 'Financial Counseling',
+        mailingAddressLine1: '100 Health Park Blvd',
+        city: 'Allentown',
+        state: 'PA',
+        zipCode: '18101',
+      },
+    };
+
+    // Patient at 250% FPL gets 100% forgiveness under this custom policy
+    const assessmentTier1 = assessCharityCareEligibility({
+      hospital: customHospital,
+      householdSize: 1,
+      annualHouseholdIncome: 40500, // 40500 / 16200 = 250% FPL
+      totalPatientBalance: 5000,
+      statementDate: new Date().toISOString().slice(0, 10),
+      evaluationYear: 2026,
+    });
+    expect(assessmentTier1.tierType).toBe('FULL_FORGIVENESS');
+    expect(assessmentTier1.discountPercentage).toBe(100);
+    expect(assessmentTier1.adjustedPatientBalanceUSD).toBe(0);
+    expect(assessmentTier1.hospitalLegalName).toBe('Community Memorial Hospital, Inc.');
+
+    // Patient at 350% FPL gets 60% partial relief
+    const assessmentTier2 = assessCharityCareEligibility({
+      hospital: customHospital,
+      householdSize: 1,
+      annualHouseholdIncome: 56700, // 56700 / 16200 = 350% FPL
+      totalPatientBalance: 5000,
+      statementDate: new Date().toISOString().slice(0, 10),
+      evaluationYear: 2026,
+    });
+    expect(assessmentTier2.tierType).toBe('SLIDING_SCALE_DISCOUNT');
+    expect(assessmentTier2.discountPercentage).toBe(60);
+    expect(assessmentTier2.adjustedPatientBalanceUSD).toBe(2000);
+
+
+    // Patient at 500% FPL (uninsured) gets custom AGB discount (72%)
+    const assessmentAgb = assessCharityCareEligibility({
+      hospital: customHospital,
+      householdSize: 1,
+      annualHouseholdIncome: 81000, // 500% FPL
+      isUninsured: true,
+      totalPatientBalance: 10000,
+      statementDate: new Date().toISOString().slice(0, 10),
+      evaluationYear: 2026,
+    });
+    expect(assessmentAgb.tierType).toBe('UNINSURED_AGB_DISCOUNT');
+    expect(assessmentAgb.discountPercentage).toBe(72);
+    expect(assessmentAgb.adjustedPatientBalanceUSD).toBe(2800);
+  });
 });
+
+

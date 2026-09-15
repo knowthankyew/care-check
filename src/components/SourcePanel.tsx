@@ -6,14 +6,18 @@ interface SourcePanelProps {
   hospital: HospitalProfile;
   householdSize: number;
   fplThreshold: number;
+  onEditHospitalPolicy?: () => void;
 }
 
 export const SourcePanel: React.FC<SourcePanelProps> = ({
   hospital,
   householdSize,
   fplThreshold,
+  onEditHospitalPolicy,
 }) => {
   const [inspectedSource, setInspectedSource] = useState<GroundedSource | null>(null);
+
+  const isCustomPolicy = hospital.dataVerificationStatus === 'CUSTOM_USER_POLICY';
 
   const sources: GroundedSource[] = [
     {
@@ -41,13 +45,28 @@ export const SourcePanel: React.FC<SourcePanelProps> = ({
       type: 'HOSPITAL_FAP',
       title: hospital.displayName,
       citation: `26 U.S.C. § 501(r)(4) • EIN: ${hospital.ein}`,
-      excerpt: `Written FAP provides 100% forgiveness up to ${hospital.fapTiers[0]?.maxFplPercent || 200}% FPL. 240-day safe harbor window.`,
+      excerpt: `${isCustomPolicy ? 'Custom user policy' : 'Written FAP'}: 100% forgiveness up to ${hospital.fapTiers[0]?.maxFplPercent || 200}% FPL. ${hospital.fapApplicationWindowDays}-day safe harbor window.`,
       fullDetails: (
         <div>
-          <p style={{ marginBottom: '12px' }}>
-            As a 501(c)(3) tax-exempt entity, {hospital.legalName} is legally required to provide free or discounted care
-            pursuant to its published policy.
-          </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+            <p style={{ margin: 0 }}>
+              As a 501(c)(3) tax-exempt entity, {hospital.legalName} is legally required to provide free or discounted care
+              pursuant to its published policy.
+            </p>
+            {onEditHospitalPolicy && (
+              <button
+                type="button"
+                className="btn-secondary"
+                style={{ padding: '4px 10px', fontSize: '0.75rem', flexShrink: 0, marginLeft: '12px' }}
+                onClick={() => {
+                  setInspectedSource(null);
+                  onEditHospitalPolicy();
+                }}
+              >
+                ✏️ Edit Policy
+              </button>
+            )}
+          </div>
           <table className="audit-table" style={{ marginTop: '8px' }}>
             <thead>
               <tr>
@@ -73,9 +92,12 @@ export const SourcePanel: React.FC<SourcePanelProps> = ({
               ) : null}
             </tbody>
           </table>
-          <p style={{ marginTop: '12px', fontSize: '0.78rem', color: '#94a3b8' }}>
-            Application Window: {hospital.fapApplicationWindowDays} days post-discharge safe harbor against Extraordinary Collection Actions (ECAs).
-          </p>
+          <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem', color: '#94a3b8' }}>
+            <span>Application Window: {hospital.fapApplicationWindowDays} days post-discharge safe harbor against ECAs.</span>
+            <span style={{ color: isCustomPolicy ? '#38bdf8' : '#10b981' }}>
+              {isCustomPolicy ? '● User-Configured Policy' : '● Seed Reference Policy'}
+            </span>
+          </div>
         </div>
       ),
     },
@@ -97,6 +119,15 @@ export const SourcePanel: React.FC<SourcePanelProps> = ({
             <div>• CPT 70450 (CT Head): Cash $420 | Medicare $98.40</div>
             <div>• CPT 80053 (Comprehensive Metabolic Panel): Unbundling protected</div>
             <div>• CPT 59400 (Routine Vaginal Delivery): Cash $3,200 | Medicare $1,820</div>
+          </div>
+          <div style={{ marginTop: '14px', padding: '10px 12px', background: '#090d16', borderRadius: '6px', fontSize: '0.72rem', color: '#94a3b8', border: '1px solid var(--border-subtle)', lineHeight: 1.5 }}>
+            <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '4px' }}>Public Domain Provenance &amp; Licensing Notice:</strong>
+            <p style={{ margin: '0 0 6px 0' }}>
+              Medicare baselines and median cash pricing benchmarks are compiled strictly from public-use files published by the Centers for Medicare &amp; Medicaid Services (CMS), a work of the U.S. Government (17 U.S.C. § 105), and hospital transparency disclosures under 45 CFR Part 180.
+            </p>
+            <p style={{ margin: 0 }}>
+              CPT® is a registered trademark of the American Medical Association (AMA). Copyright American Medical Association. All rights reserved. Procedure descriptions are abbreviated public-use descriptors. CareCheck is not affiliated with or endorsed by the AMA.
+            </p>
           </div>
         </div>
       ),
@@ -123,12 +154,25 @@ export const SourcePanel: React.FC<SourcePanelProps> = ({
           </svg>
           Grounding Sources
         </h2>
-        <span className="panel-badge">{sources.length} Verified</span>
+        <span className="panel-badge">{sources.length} Grounded</span>
       </div>
 
-      <p style={{ fontSize: '0.78rem', color: '#94a3b8', marginBottom: '14px' }}>
-        Click any source below to inspect the underlying federal law, poverty tables, or transparency pricing.
-      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+        <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0 }}>
+          Deterministic regulatory &amp; policy benchmarks.
+        </p>
+        {onEditHospitalPolicy && (
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ padding: '2px 8px', fontSize: '0.7rem', color: isCustomPolicy ? '#38bdf8' : undefined }}
+            onClick={onEditHospitalPolicy}
+            title="Configure or enter your hospital's financial assistance policy"
+          >
+            ✏️ {isCustomPolicy ? 'Custom Policy' : 'Edit Policy'}
+          </button>
+        )}
+      </div>
 
       <div className="sources-list">
         {sources.map((src) => (
@@ -155,3 +199,4 @@ export const SourcePanel: React.FC<SourcePanelProps> = ({
     </aside>
   );
 };
+

@@ -170,4 +170,24 @@ describe('LetterGeneratorEngine', () => {
     expect(doc.markdownContent).toContain('Account #ACC-999');
     expect(doc.htmlContent).toContain('John Doe');
   });
+
+  it('includes Notice & Self-Advocacy Disclaimer in copied markdown output across all letter types', () => {
+    const doc501r = generateDisputeLetter(samplePayload);
+    expect(doc501r.markdownContent).toContain('Notice & Self-Advocacy Disclaimer');
+    expect(doc501r.markdownContent).toContain('does not constitute formal legal advice or provide legal representation');
+
+
+    const docAudit = generateDisputeLetter({
+      ...samplePayload,
+      letterType: 'PRICE_TRANSPARENCY_AUDIT_DISPUTE',
+    });
+    expect(docAudit.markdownContent).toContain('Notice & Self-Advocacy Disclaimer');
+
+    const docComb = generateDisputeLetter({
+      ...samplePayload,
+      letterType: 'COMPREHENSIVE_PROTECTION_NOTICE',
+    });
+    expect(docComb.markdownContent).toContain('Notice & Self-Advocacy Disclaimer');
+  });
 });
+

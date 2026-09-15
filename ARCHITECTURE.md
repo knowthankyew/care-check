@@ -208,3 +208,24 @@ src/contracts/
 1. **OCR / Bill Parser Module**: Client-side OCR via Tesseract.js / WebAssembly to automatically extract CPT codes and dollar amounts directly from phone photos or scanned PDFs without uploading images to any server.
 2. **50-State Statutory Overlays**: State-specific medical debt laws (e.g., California AB 1020/AB 532, New York fair pricing laws, Maryland hospital financial assistance mandates) extending federal 501(r) baseline protections.
 3. **Crowdsourced FAP Catalog**: Community-driven, Git-backed submissions of hospital financial assistance policies validated via pull request automation.
+
+---
+
+## 9. Data Provenance, Licensing & Legal Safeguards
+
+### 9.1 Hospital Policy Scalability & Dual-Mode Architecture
+Seed hospital policies (`seed-hospitals.json`) cannot feasibly catalog all ~3,000+ U.S. 501(c)(3) hospitals whose FAP brackets and AGB percentages change annually. To prevent maintenance rot:
+- **Seed Presets**: Serve as verified reference templates with documented primary-source Form 990 / published FAP citations.
+- **Client Policy Editor**: Allows patients to input their hospital's exact FAP brackets, AGB discount rate, and certified mailing address directly from their physical billing statement or plain-language summary.
+- **Local Persistence & Portability**: Custom policies can be exported and imported as structured JSON files locally, preserving the zero-network PHI guarantee.
+
+### 9.2 CPT® Licensing vs. CMS Public Domain
+- **Public Domain Baselines**: Medicare Physician Fee Schedule (MPFS) baselines, Outpatient Prospective Payment System (OPPS) Addendum B rates, and NCCI unbundling edits are works of the U.S. Federal Government and reside in the public domain under **17 U.S.C. § 105**.
+- **CPT® Trademark & Short Descriptors**: CPT® is a registered trademark of the American Medical Association (AMA). CareCheck benchmark data strictly utilizes abbreviated public-use descriptors and avoids proprietary long descriptions. CareCheck is an independent educational tool and not affiliated with the AMA.
+- **Patient-Supplied Data Model**: CareCheck operates as an analytical engine over codes entered by the patient from their own itemized bill, rather than distributing a commercial medical coding ontology.
+
+### 9.3 Unauthorized Practice of Law (UPL) Safeguards
+The letter generator produces formal correspondence invoking statutory rights (26 U.S.C. § 501(r)(6), 45 CFR Part 180, 15 U.S.C. § 1692g). To eliminate patient reliance risks and UPL exposure:
+- **Prominent UI Notices**: High-visibility disclaimer banner in the Defense Studio notifying users that CareCheck is an informational self-advocacy engine, not a law firm.
+- **Immutable Output Disclaimers**: All generated dispute letters—both in copied Markdown and rendered print/PDF formats—contain an explicit Notice & Self-Advocacy Disclaimer stating the document does not constitute formal legal representation or create an attorney-client relationship.
+

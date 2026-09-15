@@ -80,7 +80,12 @@ export function generateDisputeLetter(payload: DisputeLetterPayload): GeneratedD
     );
   }
 
+  const legalDisclaimerMarkdown = `\n\n---\n**Notice & Self-Advocacy Disclaimer:** This document was prepared using the CareCheck open-source reality engine for patient self-advocacy and informational records only. CareCheck is not a law firm, does not constitute formal legal advice or provide legal representation, and does not create an attorney-client relationship. If you are facing active collection litigation, court summons, or wage garnishment, consult a licensed attorney or accredited consumer defense specialist.`;
+  markdownContent = markdownContent + legalDisclaimerMarkdown;
+
+
   const htmlContent = wrapInPrintableHtml(title, markdownContent);
+
 
   return {
     title,
@@ -372,11 +377,14 @@ function wrapInPrintableHtml(title: string, markdown: string): string {
       htmlLines.push(`<h1>${formatInline(escapeHtml(trimmed.slice(2)))}</h1>`);
     } else if (trimmed.startsWith('- ')) {
       htmlLines.push(`<li>${formatInline(escapeHtml(trimmed.slice(2)))}</li>`);
+    } else if (trimmed === '---') {
+      htmlLines.push('<hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 24px 0;" />');
     } else if (trimmed === '') {
       htmlLines.push('<br/>');
     } else {
       htmlLines.push(`<p>${formatInline(escapeHtml(trimmed))}</p>`);
     }
+
   }
 
   if (inTable) {

@@ -148,5 +148,32 @@ npm run build
 
 ---
 
+## Hospital Policy Maintenance & Custom Policy Input
+
+Hospital Financial Assistance Policies (FAP) and Amounts Generally Billed (AGB) discount percentages change on an annual basis across more than 3,000 U.S. non-profit hospitals.
+
+CareCheck addresses this through a dual-mode architecture:
+- **Audited Seed Reference Library** (`seed-hospitals.json`): Pre-calibrated templates for major health systems (Cleveland Clinic, Ascension Health, Mayo Clinic) with verified Form 990 EINs and published sliding-scale brackets.
+- **Interactive Policy Editor & Preset Manager**: Built directly into the UI. Patients can adjust sliding-scale FPL percentages, AGB discount rates, and certified mailing addresses directly from their hospital's published plain-language summary, or export/import policy configurations as JSON files without sending any data over the network.
+
+---
+
+## Data Licensing & CPT® Trademark Notice
+
+- **CMS Public Domain Data**: Medicare Physician Fee Schedule (MPFS) baselines, Outpatient Prospective Payment System (OPPS) Addendum B rates, and CMS Price Transparency mandates (45 CFR Part 180) are works of the United States Government and reside in the public domain under **17 U.S.C. § 105**.
+- **CPT® Notice**: CPT® (Current Procedural Terminology) is a registered trademark of the American Medical Association (AMA). Copyright © American Medical Association. All rights reserved. Procedure descriptions displayed in CareCheck benchmarks are abbreviated public-use descriptors. CareCheck is an independent open-source project and is not affiliated with, sponsored by, or endorsed by the AMA.
+
+---
+
+## Legal & Self-Advocacy Disclaimer
+
+> **IMPORTANT NOTICE:**  
+> CareCheck is an open-source educational reality engine built for patient self-advocacy and informational records. **CareCheck does not provide formal legal advice, representation, or attorney services, and using CareCheck does not create an attorney-client relationship.**
+>
+> While generated dispute letters cite federal consumer protection statutes (including 26 U.S.C. § 501(r), 45 CFR Part 180, and 15 U.S.C. § 1692g), hospital policies and judicial interpretations vary by jurisdiction. Patients facing imminent legal proceedings, lawsuits, court hearings, or wage garnishment should consult a licensed attorney or accredited patient advocate.
+
+---
+
 ## License
 MIT License - Built as open public-good software.
+

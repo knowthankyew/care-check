@@ -117,8 +117,32 @@ export const DefenseStudio: React.FC<DefenseStudioProps> = ({
         </span>
       </div>
 
+      {/* Legal & Self-Advocacy Disclaimer Banner */}
+      <div
+        style={{
+          background: 'rgba(30, 41, 59, 0.6)',
+          border: '1px solid rgba(245, 158, 11, 0.3)',
+          borderRadius: '6px',
+          padding: '8px 10px',
+          marginBottom: '12px',
+          fontSize: '0.72rem',
+          lineHeight: '1.4',
+          color: '#cbd5e1',
+          display: 'flex',
+          gap: '8px',
+          alignItems: 'flex-start',
+        }}
+      >
+        <span style={{ fontSize: '0.9rem', lineHeight: 1 }}>⚖️</span>
+        <div>
+          <strong style={{ color: '#fbbf24' }}>Self-Advocacy Tool &mdash; Not Legal Advice:</strong>{' '}
+          CareCheck generates statutory letters for informational self-advocacy under 26 U.S.C. § 501(r) and 45 CFR Part 180. It does not provide legal representation. If facing active lawsuits or collections litigation, consult a licensed attorney or accredited patient advocate.
+        </div>
+      </div>
+
       {/* Tabs */}
       <div className="letter-type-tabs">
+
         <button
           className={`letter-tab ${letterType === 'COMPREHENSIVE_PROTECTION_NOTICE' ? 'active' : ''}`}
           onClick={() => setLetterType('COMPREHENSIVE_PROTECTION_NOTICE')}

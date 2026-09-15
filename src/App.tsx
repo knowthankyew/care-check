@@ -4,6 +4,7 @@ import { SourcePanel } from './components/SourcePanel.js';
 import { CharityCareBarometer } from './components/CharityCareBarometer.js';
 import { BillAuditWorkbench } from './components/BillAuditWorkbench.js';
 import { DefenseStudio } from './components/DefenseStudio.js';
+import { HospitalPolicyModal } from './components/HospitalPolicyModal.js';
 import { assessCharityCareEligibility } from './core/charity-care/engine.js';
 import { auditMedicalBill } from './core/price-audit/engine.js';
 import type { HospitalProfile } from './contracts/hospital.js';
@@ -11,6 +12,7 @@ import type { ItemizedMedicalBill, BillLineItem } from './contracts/bill.js';
 import hospitalsData from '../data/hospitals/seed-hospitals.json' with { type: 'json' };
 
 const HOSPITALS = hospitalsData as HospitalProfile[];
+
 
 const SCENARIOS: Record<
   string,
@@ -167,6 +169,8 @@ export const App: React.FC = () => {
   const activeScenario = SCENARIOS[scenarioId] || SCENARIOS['er-trauma']!;
 
   const [hospitalId, setHospitalId] = useState<string>(activeScenario.hospitalId);
+  const [customHospital, setCustomHospital] = useState<HospitalProfile | null>(null);
+  const [isHospitalModalOpen, setIsHospitalModalOpen] = useState(false);
   const [householdSize, setHouseholdSize] = useState<number>(activeScenario.householdSize);
   const [annualIncome, setAnnualIncome] = useState<number>(activeScenario.annualIncome);
   const [bill, setBill] = useState<ItemizedMedicalBill>(activeScenario.bill);
@@ -174,6 +178,7 @@ export const App: React.FC = () => {
   // Switch scenario
   const handleScenarioChange = (id: string) => {
     setScenarioId(id);
+    setCustomHospital(null);
     const scen = SCENARIOS[id] || SCENARIOS['er-trauma']!;
     setHospitalId(scen.hospitalId);
     setHouseholdSize(scen.householdSize);
@@ -181,10 +186,20 @@ export const App: React.FC = () => {
     setBill(scen.bill);
   };
 
+  const handleSaveHospitalPolicy = (updated: HospitalProfile) => {
+    setCustomHospital(updated);
+    setBill((prev) => ({
+      ...prev,
+      hospitalId: updated.id,
+      hospitalName: updated.displayName,
+    }));
+  };
+
   const currentHospital = useMemo(
-    () => HOSPITALS.find((h) => h.id === hospitalId) || HOSPITALS[0]!,
-    [hospitalId]
+    () => customHospital || HOSPITALS.find((h) => h.id === hospitalId) || HOSPITALS[0]!,
+    [customHospital, hospitalId]
   );
+
 
   // Pure domain evaluations
   const charityAssessment = useMemo(() => {
@@ -274,6 +289,7 @@ export const App: React.FC = () => {
           hospital={currentHospital}
           householdSize={householdSize}
           fplThreshold={charityAssessment.fplThresholdUSD}
+          onEditHospitalPolicy={() => setIsHospitalModalOpen(true)}
         />
 
         {/* Center: Reality Studio Canvas */}
@@ -302,6 +318,14 @@ export const App: React.FC = () => {
           statementDate={bill.statementDate}
         />
       </main>
+
+      <HospitalPolicyModal
+        isOpen={isHospitalModalOpen}
+        currentHospital={currentHospital}
+        onSave={handleSaveHospitalPolicy}
+        onClose={() => setIsHospitalModalOpen(false)}
+      />
     </div>
   );
 };
+
