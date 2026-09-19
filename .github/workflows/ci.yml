@@ -35,3 +35,12 @@ jobs:
 
       - name: Build Production Bundle
         run: npm run build
+
+      - name: Generate CycloneDX SBOM
+        run: npx --yes @cyclonedx/cdxgen -o bom.json
+
+      - name: Upload SBOM Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-carecheck-cyclonedx
+          path: bom.json
