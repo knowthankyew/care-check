@@ -33,6 +33,9 @@ jobs:
       - name: TypeScript Type Check
         run: npx tsc --noEmit
 
+      - name: Validate Declarative Policy Packs (Track 2)
+        run: npm run validate:policies
+
       - name: Run Test Suite (Vitest)
         run: npm test
 

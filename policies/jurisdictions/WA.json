@@ -1,0 +1,27 @@
+{
+  "$schema": "../schemas/charity-care-policy.schema.json",
+  "jurisdiction": {
+    "code": "WA",
+    "name": "Washington",
+    "type": "state"
+  },
+  "metadata": {
+    "version": "2026.1",
+    "effectiveDate": "2026-01-01",
+    "lastAudited": "2026-09-01",
+    "statuteRef": "RCW 70.41.020 & RCW 70.41.030 (Charity Care Act / SHB 1616)",
+    "officialSourceUrl": "https://doh.wa.gov/data-and-statistical-reports/healthcare-data/hospital-reporting/hospital-charity-care"
+  },
+  "mandates": {
+    "fullCharityFplThresholdPercent": 200,
+    "partialDiscountFplThresholdPercent": 400,
+    "minimumEcaNoticeDays": 240,
+    "assetExemptionRequired": true,
+    "statutoryProtections": [
+      "Washington Charity Care Act (SHB 1616) mandates 100% free care for families earning up to 200% of the Federal Poverty Level.",
+      "Large health systems (Tier 1) must provide sliding scale discounts for families earning up to 400% FPL.",
+      "Hospitals are strictly barred from considering a patient's primary residence or retirement assets when assessing charity care.",
+      "Mandatory plain-language charity care notice must accompany all patient bills and discharge paperwork."
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "../schemas/charity-care-policy.schema.json",
+  "jurisdiction": {
+    "code": "XX",
+    "name": "State Name",
+    "type": "state"
+  },
+  "metadata": {
+    "version": "2026.1",
+    "effectiveDate": "2026-01-01",
+    "lastAudited": "2026-09-01",
+    "statuteRef": "State Health & Safety Code § ...",
+    "officialSourceUrl": "https://..."
+  },
+  "mandates": {
+    "fullCharityFplThresholdPercent": 200,
+    "partialDiscountFplThresholdPercent": 400,
+    "minimumEcaNoticeDays": 240,
+    "assetExemptionRequired": true,
+    "statutoryProtections": [
+      "Description of state statutory protection or FPL discount threshold."
+    ]
+  }
+}

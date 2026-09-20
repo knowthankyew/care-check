@@ -1,0 +1,27 @@
+{
+  "$schema": "../schemas/charity-care-policy.schema.json",
+  "jurisdiction": {
+    "code": "US",
+    "name": "General US Federal Standard",
+    "type": "federal"
+  },
+  "metadata": {
+    "version": "2026.1",
+    "effectiveDate": "2026-01-01",
+    "lastAudited": "2026-09-01",
+    "statuteRef": "26 U.S.C. § 501(r) & CMS 45 CFR Part 180",
+    "officialSourceUrl": "https://www.irs.gov/charities-non-profits/financial-assistance-policies-faps"
+  },
+  "mandates": {
+    "fullCharityFplThresholdPercent": 200,
+    "partialDiscountFplThresholdPercent": 400,
+    "minimumEcaNoticeDays": 240,
+    "assetExemptionRequired": false,
+    "statutoryProtections": [
+      "Tax-exempt 501(c)(3) hospitals must establish and publicize a written Financial Assistance Policy (FAP).",
+      "Amounts Generally Billed (AGB): Charges for eligible patients cannot exceed amounts generally billed to insured individuals.",
+      "Extraordinary Collection Actions (ECAs) are strictly banned for at least 240 days following the first post-discharge billing statement.",
+      "Hospitals must make reasonable efforts to determine charity care eligibility before reporting debt to credit agencies or initiating lawsuits."
+    ]
+  }
+}

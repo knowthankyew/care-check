@@ -1,0 +1,27 @@
+{
+  "$schema": "../schemas/charity-care-policy.schema.json",
+  "jurisdiction": {
+    "code": "NY",
+    "name": "New York",
+    "type": "state"
+  },
+  "metadata": {
+    "version": "2026.1",
+    "effectiveDate": "2026-01-01",
+    "lastAudited": "2026-09-01",
+    "statuteRef": "N.Y. Public Health Law § 2807-k (Financial Aid Law)",
+    "officialSourceUrl": "https://www.health.ny.gov/regulations/public_health_law/section/2807-k/"
+  },
+  "mandates": {
+    "fullCharityFplThresholdPercent": 100,
+    "partialDiscountFplThresholdPercent": 300,
+    "minimumEcaNoticeDays": 240,
+    "assetExemptionRequired": true,
+    "statutoryProtections": [
+      "New York Financial Aid Law requires general hospitals to offer financial aid policies for low- and moderate-income patients.",
+      "Patients with incomes below 100% FPL cannot be charged more than a nominal statutory fee ($0-$15 depending on service).",
+      "Sliding scale discounts apply up to at least 300% FPL.",
+      "Prohibits hospitals from forcing property liens or home foreclosures for unpaid medical debt."
+    ]
+  }
+}

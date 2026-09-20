@@ -1,0 +1,27 @@
+{
+  "$schema": "../schemas/charity-care-policy.schema.json",
+  "jurisdiction": {
+    "code": "CA",
+    "name": "California",
+    "type": "state"
+  },
+  "metadata": {
+    "version": "2026.1",
+    "effectiveDate": "2026-01-01",
+    "lastAudited": "2026-09-01",
+    "statuteRef": "Cal. Health & Safety Code § 127400 et seq. (Hospital Fair Pricing Act / AB 1020)",
+    "officialSourceUrl": "https://hcai.ca.gov/facility-reporting/hospital-fair-pricing-policies/"
+  },
+  "mandates": {
+    "fullCharityFplThresholdPercent": 200,
+    "partialDiscountFplThresholdPercent": 400,
+    "minimumEcaNoticeDays": 240,
+    "assetExemptionRequired": true,
+    "statutoryProtections": [
+      "Hospital Fair Pricing Act mandates discounted or free care for uninsured and underinsured patients up to 400% of the Federal Poverty Level.",
+      "Hospitals must provide an interest-free payment plan where monthly payments cannot exceed 10% of patient household family monthly income.",
+      "Under AB 1020, hospitals cannot assign debt to collections without providing 180 days advance notice and certifying eligibility checks.",
+      "Primary residence, retirement accounts, and essential monetary assets up to statutory thresholds are protected from asset tests."
+    ]
+  }
+}

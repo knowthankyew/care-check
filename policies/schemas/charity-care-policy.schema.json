@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://knowthankyew.org/schemas/v1/charity-care-policy.schema.json",
+  "title": "CharityCarePolicyPack",
+  "description": "Declarative policy schema for state and federal statutory charity care mandates and medical debt protections",
+  "type": "object",
+  "required": [
+    "jurisdiction",
+    "metadata",
+    "mandates"
+  ],
+  "properties": {
+    "jurisdiction": {
+      "type": "object",
+      "required": ["code", "name", "type"],
+      "properties": {
+        "code": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["federal", "state"] }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["version", "statuteRef"],
+      "properties": {
+        "version": { "type": "string" },
+        "effectiveDate": { "type": "string" },
+        "lastAudited": { "type": "string" },
+        "statuteRef": { "type": "string" },
+        "officialSourceUrl": { "type": "string" }
+      }
+    },
+    "mandates": {
+      "type": "object",
+      "required": [
+        "fullCharityFplThresholdPercent",
+        "partialDiscountFplThresholdPercent",
+        "minimumEcaNoticeDays",
+        "statutoryProtections"
+      ],
+      "properties": {
+        "fullCharityFplThresholdPercent": { "type": "number", "minimum": 0 },
+        "partialDiscountFplThresholdPercent": { "type": "number", "minimum": 0 },
+        "minimumEcaNoticeDays": { "type": "number", "minimum": 0 },
+        "assetExemptionRequired": { "type": "boolean" },
+        "statutoryProtections": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 5 }
+        }
+      }
+    }
+  }
+}
