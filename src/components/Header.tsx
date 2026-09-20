@@ -1,9 +1,11 @@
 import React from 'react';
+import { telemetry } from '../core/telemetry.js';
 
 interface HeaderProps {
   scenarioId: string;
   onScenarioChange: (id: string) => void;
   onPurgeData: () => void;
+  onOpenPrivacyAudit: () => void;
   groundedSourcesCount: number;
 }
 
@@ -11,8 +13,11 @@ export const Header: React.FC<HeaderProps> = ({
   scenarioId,
   onScenarioChange,
   onPurgeData,
+  onOpenPrivacyAudit,
   groundedSourcesCount,
 }) => {
+  const claims = telemetry.getPrivacyClaims();
+
   return (
     <header className="app-header">
       <div className="brand-section">
@@ -33,15 +38,25 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
         <div className="brand-title">
           CareCheck Studio
-          <span className="brand-badge">Reality Engine</span>
+          {claims.isEnterpriseBuild ? (
+            <span className="brand-badge enterprise">ENTERPRISE (OTLP)</span>
+          ) : (
+            <span className="brand-badge">Reality Engine</span>
+          )}
         </div>
       </div>
 
       <div className="header-meta">
-        <div className="pill-indicator verified" title="All computations run purely in-browser">
+        <button
+          type="button"
+          className={`pill-indicator clickable ${claims.isLocalOnlyHonest ? 'verified' : 'enterprise'}`}
+          onClick={onOpenPrivacyAudit}
+          title="Inspect real-time telemetry mode, egress policy, and session audit trails"
+          style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+        >
           <span className="pill-dot"></span>
-          <span>Zero PHI Network Transmission</span>
-        </div>
+          <span>{claims.badgeLabel}</span>
+        </button>
 
         <div className="pill-indicator" title="Grounded against public law and hospital transparency files">
           <svg

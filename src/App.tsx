@@ -5,8 +5,10 @@ import { CharityCareBarometer } from './components/CharityCareBarometer.js';
 import { BillAuditWorkbench } from './components/BillAuditWorkbench.js';
 import { DefenseStudio } from './components/DefenseStudio.js';
 import { HospitalPolicyModal } from './components/HospitalPolicyModal.js';
+import { PrivacyAuditModal } from './components/PrivacyAuditModal.js';
 import { assessCharityCareEligibility } from './core/charity-care/engine.js';
 import { auditMedicalBill } from './core/price-audit/engine.js';
+import { telemetry } from './core/telemetry.js';
 import type { HospitalProfile } from './contracts/hospital.js';
 import type { ItemizedMedicalBill, BillLineItem } from './contracts/bill.js';
 import hospitalsData from '../data/hospitals/seed-hospitals.json' with { type: 'json' };
@@ -171,12 +173,16 @@ export const App: React.FC = () => {
   const [hospitalId, setHospitalId] = useState<string>(activeScenario.hospitalId);
   const [customHospital, setCustomHospital] = useState<HospitalProfile | null>(null);
   const [isHospitalModalOpen, setIsHospitalModalOpen] = useState(false);
+  const [isPrivacyAuditOpen, setIsPrivacyAuditOpen] = useState(false);
   const [householdSize, setHouseholdSize] = useState<number>(activeScenario.householdSize);
   const [annualIncome, setAnnualIncome] = useState<number>(activeScenario.annualIncome);
   const [bill, setBill] = useState<ItemizedMedicalBill>(activeScenario.bill);
 
+  const claims = telemetry.getPrivacyClaims();
+
   // Switch scenario
   const handleScenarioChange = (id: string) => {
+    telemetry.restartSession();
     setScenarioId(id);
     setCustomHospital(null);
     const scen = SCENARIOS[id] || SCENARIOS['er-trauma']!;
@@ -184,6 +190,12 @@ export const App: React.FC = () => {
     setHouseholdSize(scen.householdSize);
     setAnnualIncome(scen.annualIncome);
     setBill(scen.bill);
+    telemetry.recordAuditEvent('document_ingested', `Loaded scenario: ${id}`, {
+      hospital_id: scen.hospitalId,
+      household_size: scen.householdSize,
+      annual_income: scen.annualIncome,
+      total_billed: scen.bill.totalBilledCharge,
+    });
   };
 
   const handleSaveHospitalPolicy = (updated: HospitalProfile) => {
@@ -203,7 +215,13 @@ export const App: React.FC = () => {
 
   // Pure domain evaluations
   const charityAssessment = useMemo(() => {
-    return assessCharityCareEligibility({
+    const span = telemetry.startSpan('evaluate_charity_care', {
+      hospital_id: currentHospital.id,
+      household_size: householdSize,
+      annual_income: annualIncome,
+      patient_responsibility: bill.totalPatientResponsibility,
+    });
+    const assessment = assessCharityCareEligibility({
       hospital: currentHospital,
       householdSize,
       annualHouseholdIncome: annualIncome,
@@ -211,12 +229,25 @@ export const App: React.FC = () => {
       statementDate: bill.statementDate,
       evaluationYear: new Date().getFullYear(),
     });
+    span.end('OK', {
+      fpl_percentage: Math.round(assessment.fplPercentage),
+      charity_eligible: assessment.tierType !== 'INELIGIBLE',
+    });
+    return assessment;
   }, [currentHospital, householdSize, annualIncome, bill.totalPatientResponsibility, bill.statementDate]);
 
   const auditResult = useMemo(() => {
-    return auditMedicalBill(bill, {
+    const span = telemetry.startSpan('audit_medical_bill', {
+      line_count: bill.lineItems.length,
+      total_billed: bill.totalBilledCharge,
+    });
+    const res = auditMedicalBill(bill, {
       charityCareAssessment: charityAssessment,
     });
+    span.end('OK', {
+      discrepancy_count: res.summaryFlags.length,
+    });
+    return res;
   }, [bill, charityAssessment]);
 
   // Update line items
@@ -232,56 +263,70 @@ export const App: React.FC = () => {
 
   // Instant Burn All Data command
   const handlePurgeData = () => {
-    if (confirm('Burn all local data? This will immediately wipe all loaded bills, in-memory state, and caches from your device.')) {
-      try {
-        localStorage.clear();
-        sessionStorage.clear();
-        if (typeof window !== 'undefined' && 'caches' in window) {
-          window.caches.keys().then((keys) => {
-            keys.forEach((k) => window.caches.delete(k));
-          });
-        }
-        if (typeof window !== 'undefined' && 'indexedDB' in window && typeof indexedDB.databases === 'function') {
-          indexedDB.databases().then((dbs) => {
-            for (const db of dbs) {
-              if (db.name) indexedDB.deleteDatabase(db.name);
-            }
-          }).catch(() => {});
-        }
-      } catch {
-        // Silently ignore storage errors
+    telemetry.burn();
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      if (typeof window !== 'undefined' && 'caches' in window) {
+        window.caches.keys().then((keys) => {
+          keys.forEach((k) => window.caches.delete(k));
+        });
       }
-      // Purge in-memory state
-      setHouseholdSize(1);
-      setAnnualIncome(0);
-      setBill({
-        id: 'cleared-session',
-        accountNumber: 'CLEARED',
-        hospitalId: 'cleveland-clinic-main',
-        hospitalName: 'The Cleveland Clinic Foundation',
-        patientName: '',
-        statementDate: new Date().toISOString().slice(0, 10),
-        hasItemizedBreakdown: true,
-        totalBilledCharge: 0,
-        totalInsurancePaid: 0,
-        totalPatientResponsibility: 0,
-        lineItems: [],
-      });
-      setScenarioId('custom');
-      alert('All local state and in-memory data burned. Zero records remain on this device.');
-      // Hard reload guarantees that React's in-memory JS heap state is completely wiped
-      window.location.reload();
+      if (typeof window !== 'undefined' && 'indexedDB' in window && typeof indexedDB.databases === 'function') {
+        indexedDB.databases().then((dbs) => {
+          for (const db of dbs) {
+            if (db.name) indexedDB.deleteDatabase(db.name);
+          }
+        }).catch(() => {});
+      }
+    } catch {
+      // Silently ignore storage errors
     }
+    // Purge in-memory state
+    setHouseholdSize(1);
+    setAnnualIncome(0);
+    setBill({
+      id: 'cleared-session',
+      accountNumber: 'CLEARED',
+      hospitalId: 'cleveland-clinic-main',
+      hospitalName: 'The Cleveland Clinic Foundation',
+      patientName: '',
+      statementDate: new Date().toISOString().slice(0, 10),
+      hasItemizedBreakdown: true,
+      totalBilledCharge: 0,
+      totalInsurancePaid: 0,
+      totalPatientResponsibility: 0,
+      lineItems: [],
+    });
+    setScenarioId('custom');
   };
 
   return (
     <div className="app-container">
       <div className="ambient-glow" />
 
+      {claims.isEnterpriseBuild && (
+        <div className="enterprise-persistent-banner" role="alert">
+          <span style={{ fontSize: '1.1rem', flexShrink: 0 }}>⚠️</span>
+          <div style={{ flex: 1 }}>
+            <strong>Enterprise Mode:</strong> Telemetry exporter active ({claims.badgeLabel}). Operational metadata exported to <code>{claims.otlpEndpoint}</code>. Medical records strictly redacted.
+          </div>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            style={{ padding: '0.25rem 0.65rem', fontSize: '0.75rem', whiteSpace: 'nowrap', cursor: 'pointer' }}
+            onClick={() => setIsPrivacyAuditOpen(true)}
+          >
+            Inspect Telemetry
+          </button>
+        </div>
+      )}
+
       <Header
         scenarioId={scenarioId}
         onScenarioChange={handleScenarioChange}
         onPurgeData={handlePurgeData}
+        onOpenPrivacyAudit={() => setIsPrivacyAuditOpen(true)}
         groundedSourcesCount={3}
       />
 
@@ -290,7 +335,7 @@ export const App: React.FC = () => {
         <div className="upl-global-inner">
           <span>⚖️</span>
           <div>
-            <strong>Legal Notice:</strong> This document and software tool were generated by an automated open-source software tool for informational advocacy purposes and do not constitute formal legal advice. CareCheck is not a law firm and does not provide legal representation.
+            <strong>Legal Notice:</strong> This document and software tool were generated by an automated open-source software tool for informational advocacy purposes and do not constitute formal legal advice. CareCheck is not a law firm and does not provide legal representation. {claims.disclaimerExecutionText}
           </div>
         </div>
       </div>
@@ -338,9 +383,18 @@ export const App: React.FC = () => {
         onClose={() => setIsHospitalModalOpen(false)}
       />
 
+      <PrivacyAuditModal
+        isOpen={isPrivacyAuditOpen}
+        onClose={() => setIsPrivacyAuditOpen(false)}
+        onBurnData={handlePurgeData}
+      />
+
       <footer className="app-upl-footer">
-        <p>CareCheck Reality Engine &bull; 100% Local-First &bull; Zero Personal Data Extraction &bull; Open-Source Medical Advocacy</p>
+        <p><strong>CareCheck Reality Engine{claims.appTitleSuffix}</strong> &bull; {claims.footerTitle}</p>
         <p className="upl-subtext">This document was generated by an automated open-source software tool for informational advocacy purposes and does not constitute formal legal advice.</p>
+        <p style={{ marginTop: '0.4rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+          {claims.footerSubtext}
+        </p>
       </footer>
     </div>
   );

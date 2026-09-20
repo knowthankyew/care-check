@@ -134,6 +134,12 @@ body {
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
+.brand-badge.enterprise {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
 .header-meta {
   display: flex;
   align-items: center;
@@ -153,10 +159,25 @@ body {
   color: var(--text-secondary);
 }
 
+.pill-indicator.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pill-indicator.clickable:hover {
+  filter: brightness(1.15);
+}
+
 .pill-indicator.verified {
   color: #34d399;
   border-color: rgba(16, 185, 129, 0.3);
   background: rgba(16, 185, 129, 0.08);
+}
+
+.pill-indicator.enterprise {
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.08);
 }
 
 .pill-dot {
@@ -165,6 +186,32 @@ body {
   border-radius: 50%;
   background: #10b981;
   box-shadow: 0 0 8px #10b981;
+}
+
+.pill-indicator.enterprise .pill-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+/* Enterprise Persistent Banner */
+.enterprise-persistent-banner {
+  background: #fef3c7;
+  border-bottom: 2px solid #f59e0b;
+  color: #92400e;
+  padding: 0.5rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  z-index: 1000;
+}
+
+.enterprise-persistent-banner code {
+  font-family: var(--font-mono);
+  background: rgba(0, 0, 0, 0.06);
+  padding: 2px 5px;
+  border-radius: 4px;
 }
 
 .sample-selector-label {
