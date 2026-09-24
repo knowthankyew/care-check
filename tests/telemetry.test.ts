@@ -45,6 +45,7 @@ describe('CareCheck TelemetryManager & Privacy Invariants', () => {
       raw_payload: 'SECRET CONFIDENTIAL PHI',
       household_size: 3,
       annual_income: 32000,
+      has_income_verified: true,
     });
     span.end('OK');
 
@@ -52,12 +53,13 @@ describe('CareCheck TelemetryManager & Privacy Invariants', () => {
     expect(spans).toHaveLength(1);
     const attrs = spans[0].attributes;
 
-    // Allowlisted keys pass through
+    // Allowlisted operational keys pass through
     expect(attrs.hospital_id).toBe('cleveland-clinic-main');
     expect(attrs.household_size).toBe(3);
-    expect(attrs.annual_income).toBe(32000);
+    expect(attrs.has_income_verified).toBe(true);
 
-    // Non-allowlisted keys are strictly redacted by default
+    // Sensitive financial and PHI keys are strictly redacted by default
+    expect(attrs.annual_income).toBe('[REDACTED_BY_DEFAULT_ALLOWLIST]');
     expect(attrs.patient_name).toBe('[REDACTED_BY_DEFAULT_ALLOWLIST]');
     expect(attrs.ssn).toBe('[REDACTED_BY_DEFAULT_ALLOWLIST]');
     expect(attrs.diagnosis).toBe('[REDACTED_BY_DEFAULT_ALLOWLIST]');
@@ -69,7 +71,7 @@ describe('CareCheck TelemetryManager & Privacy Invariants', () => {
     const span = tm.startSpan('parse_bill', { line_count: 3 });
     span.end('OK');
 
-    tm.recordAuditEvent('document_ingested', 'Ingested medical bill', { total_billed: 5000 });
+    tm.recordAuditEvent('document_ingested', 'Ingested medical bill', { has_balance_due: true });
 
     expect(tm.getMemorySpans().length).toBe(1);
     expect(tm.getAuditLog().length).toBe(1);

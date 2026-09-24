@@ -193,8 +193,8 @@ export const App: React.FC = () => {
     telemetry.recordAuditEvent('document_ingested', `Loaded scenario: ${id}`, {
       hospital_id: scen.hospitalId,
       household_size: scen.householdSize,
-      annual_income: scen.annualIncome,
-      total_billed: scen.bill.totalBilledCharge,
+      has_income_verified: scen.annualIncome > 0,
+      has_balance_due: scen.bill.totalBilledCharge > 0,
     });
   };
 
@@ -218,8 +218,8 @@ export const App: React.FC = () => {
     const span = telemetry.startSpan('evaluate_charity_care', {
       hospital_id: currentHospital.id,
       household_size: householdSize,
-      annual_income: annualIncome,
-      patient_responsibility: bill.totalPatientResponsibility,
+      has_income_verified: annualIncome > 0,
+      has_balance_due: bill.totalPatientResponsibility > 0,
     });
     const assessment = assessCharityCareEligibility({
       hospital: currentHospital,
@@ -239,7 +239,7 @@ export const App: React.FC = () => {
   const auditResult = useMemo(() => {
     const span = telemetry.startSpan('audit_medical_bill', {
       line_count: bill.lineItems.length,
-      total_billed: bill.totalBilledCharge,
+      has_balance_due: bill.totalBilledCharge > 0,
     });
     const res = auditMedicalBill(bill, {
       charityCareAssessment: charityAssessment,

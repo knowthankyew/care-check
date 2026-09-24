@@ -34,21 +34,18 @@ export type {
 
 export { MemoryExporter };
 
-// Domain-specific operational attributes for CareCheck
+// Domain-specific operational attributes for CareCheck (PHI, bill totals, and CPT codes strictly excluded)
 export const CARECHECK_ALLOWLIST_KEYS: ReadonlySet<string> = new Set([
   'hospital_id',
   'household_size',
-  'annual_income',
-  'total_billed',
-  'total_patient_responsibility',
-  'patient_responsibility',
   'fpl_percentage',
   'charity_eligible',
-  'cpt_code',
   'line_count',
   'has_itemized_breakdown',
   'discrepancy_count',
   'discount_percent',
+  'has_income_verified',
+  'has_balance_due',
 ]);
 
 export const SAFE_ALLOWLIST_KEYS: ReadonlySet<string> = new Set([
