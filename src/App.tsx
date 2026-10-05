@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Header } from './components/Header.js';
 import { SourcePanel } from './components/SourcePanel.js';
 import { CharityCareBarometer } from './components/CharityCareBarometer.js';
@@ -9,6 +9,9 @@ import { PrivacyAuditModal } from './components/PrivacyAuditModal.js';
 import { assessCharityCareEligibility } from './core/charity-care/engine.js';
 import { auditMedicalBill } from './core/price-audit/engine.js';
 import { telemetry } from './core/telemetry.js';
+import { useKTYHandoff } from '@knowthankyew/privacy-telemetry/react';
+import { mapHandoffToMedicalBill } from './core/handoff-adapter.js';
+import { HandoffBanner } from './components/HandoffBanner.js';
 import type { HospitalProfile } from './contracts/hospital.js';
 import type { ItemizedMedicalBill, BillLineItem } from './contracts/bill.js';
 import hospitalsData from '../data/hospitals/seed-hospitals.json' with { type: 'json' };
@@ -207,6 +210,21 @@ export const App: React.FC = () => {
     }));
   };
 
+  const { payload: handoffPayload, isHandoffActive, clearHandoff } = useKTYHandoff('care-check');
+
+  useEffect(() => {
+    if (handoffPayload) {
+      const mapped = mapHandoffToMedicalBill(handoffPayload);
+      setBill(mapped);
+      setScenarioId('custom');
+    }
+  }, [handoffPayload]);
+
+  const handleClearHandoff = () => {
+    clearHandoff();
+    handleScenarioChange('er-trauma');
+  };
+
   const currentHospital = useMemo(
     () => customHospital || HOSPITALS.find((h) => h.id === hospitalId) || HOSPITALS[0]!,
     [customHospital, hospitalId]
@@ -263,6 +281,7 @@ export const App: React.FC = () => {
 
   // Instant Burn All Data command
   const handlePurgeData = () => {
+    clearHandoff();
     telemetry.burn();
     try {
       localStorage.clear();
@@ -351,6 +370,10 @@ export const App: React.FC = () => {
 
         {/* Center: Reality Studio Canvas */}
         <div className="canvas-column">
+          {isHandoffActive && handoffPayload && (
+            <HandoffBanner payload={handoffPayload} onClear={handleClearHandoff} />
+          )}
+
           <CharityCareBarometer
             hospital={currentHospital}
             householdSize={householdSize}
