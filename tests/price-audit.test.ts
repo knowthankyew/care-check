@@ -171,5 +171,37 @@ describe('PriceAuditEngine', () => {
     expect(echoAudit.hospitalCashPrice).toBe(680);
     expect(echoAudit.potentialSavingsUSD).toBe(1050 - 680);
   });
+
+  it('resiliently handles NaN quantities, negative charges, and NaN patient responsibility', () => {
+    const invalidBill: ItemizedMedicalBill = {
+      id: 'bill-nan',
+      accountNumber: 'ACC-NAN',
+      hospitalId: 'generic-hospital',
+      hospitalName: 'Community Hospital',
+      patientName: 'Taylor Doe',
+      statementDate: '2026-09-01',
+      hasItemizedBreakdown: true,
+      totalBilledCharge: -100,
+      totalInsurancePaid: 0,
+      totalPatientResponsibility: NaN,
+      lineItems: [
+        {
+          id: 'line-err1',
+          codeType: 'CPT',
+          code: '99285',
+          description: 'Emergency Dept Visit',
+          quantity: NaN,
+          billedCharge: -500,
+          patientResponsibility: -500,
+        },
+      ],
+    };
+
+    const audit = auditMedicalBill(invalidBill);
+    expect(audit.totalPotentialSavingsUSD).toBe(0);
+    expect(audit.recommendedFairSettlementUSD).toBe(0);
+    expect(audit.lineItemAudits[0]!.billedCharge).toBe(0);
+  });
 });
+
 

@@ -19,12 +19,13 @@ export const BillAuditWorkbench: React.FC<BillAuditWorkbenchProps> = ({
   const [newAmount, setNewAmount] = useState('1850');
 
   const handleAddLineItem = () => {
-    const amount = parseFloat(newAmount) || 0;
+    const raw = parseFloat(newAmount);
+    const amount = Number.isFinite(raw) && raw > 0 ? Number(raw.toFixed(2)) : 0;
     const newItem: BillLineItem = {
       id: `line-${Date.now()}`,
       codeType: 'CPT',
-      code: newCpt.trim(),
-      description: newDesc.trim(),
+      code: newCpt.trim() || 'CPT-CUSTOM',
+      description: newDesc.trim() || 'Custom Medical Line Item',
       quantity: 1,
       billedCharge: amount,
       patientResponsibility: amount,
@@ -38,10 +39,11 @@ export const BillAuditWorkbench: React.FC<BillAuditWorkbenchProps> = ({
   };
 
   const handleUpdateAmount = (id: string, newBilled: number) => {
+    const sanitized = Number.isFinite(newBilled) && newBilled > 0 ? Number(newBilled.toFixed(2)) : 0;
     onUpdateLineItems(
       bill.lineItems.map((item) =>
         item.id === id
-          ? { ...item, billedCharge: newBilled, patientResponsibility: newBilled }
+          ? { ...item, billedCharge: sanitized, patientResponsibility: sanitized }
           : item
       )
     );

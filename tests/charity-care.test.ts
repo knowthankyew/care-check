@@ -297,6 +297,36 @@ describe('CharityCareEngine - 501(r) Eligibility Assessment', () => {
     expect(assessmentAgb.discountPercentage).toBe(72);
     expect(assessmentAgb.adjustedPatientBalanceUSD).toBe(2800);
   });
+
+  it('resiliently handles NaN, non-numeric values, negative balances, and malformed statement dates', () => {
+    // Household size NaN defaults to 1, income NaN defaults to 0
+    const nanRes = calculateFpl({
+      householdSize: NaN,
+      annualHouseholdIncome: NaN,
+      year: 2026,
+    });
+    expect(nanRes.householdSize).toBe(1);
+    expect(nanRes.annualHouseholdIncome).toBe(0);
+    expect(nanRes.povertyPercentage).toBe(0);
+    expect(Number.isFinite(nanRes.povertyThreshold)).toBe(true);
+
+    // Negative patient balance clamped to 0, malformed statement date defaults safely
+    const assessment = assessCharityCareEligibility({
+      hospital: clevelandClinic,
+      householdSize: NaN,
+      annualHouseholdIncome: -5000,
+      totalPatientBalance: NaN,
+      statementDate: 'invalid-date-format',
+      evaluationYear: 2026,
+    });
+    expect(assessment.householdSize).toBe(1);
+    expect(assessment.annualHouseholdIncome).toBe(0);
+    expect(assessment.originalPatientBalanceUSD).toBe(0);
+    expect(assessment.totalForgivenAmountUSD).toBe(0);
+    expect(assessment.adjustedPatientBalanceUSD).toBe(0);
+    expect(Number.isFinite(assessment.daysRemainingInApplicationWindow)).toBe(true);
+  });
 });
+
 
 

@@ -24,7 +24,8 @@ const GUIDELINES = guidelinesData.guidelines as FplYearlyGuideline[];
  * for a given household size, income, and geographical region.
  */
 export function calculateFpl(params: FplCalculationParams): FplCalculationResult {
-  const householdSize = Math.max(1, Math.floor(params.householdSize));
+  const rawSize = Number(params.householdSize);
+  const householdSize = Number.isFinite(rawSize) && rawSize >= 1 ? Math.floor(rawSize) : 1;
   const region: PovertyRegion = params.region || 'contiguous';
   const targetYear = params.year || GUIDELINES[GUIDELINES.length - 1]?.year || new Date().getFullYear();
 
@@ -42,7 +43,8 @@ export function calculateFpl(params: FplCalculationParams): FplCalculationResult
   const povertyThreshold =
     regionData.baseAmount + (householdSize - 1) * regionData.incrementPerPerson;
 
-  const income = Math.max(0, params.annualHouseholdIncome);
+  const rawIncome = Number(params.annualHouseholdIncome);
+  const income = Number.isFinite(rawIncome) && rawIncome > 0 ? rawIncome : 0;
   const povertyPercentage = Number(((income / povertyThreshold) * 100).toFixed(2));
 
   return {
@@ -121,7 +123,8 @@ export function assessCharityCareEligibility(
     qualifyingTierName = `Amounts Generally Billed (AGB) Cap (${hospital.agbDiscountPercent}% Discount)`;
   }
 
-  const originalBalance = Math.max(0, totalPatientBalance);
+  const rawBalance = Number(totalPatientBalance);
+  const originalBalance = Number.isFinite(rawBalance) && rawBalance > 0 ? rawBalance : 0;
   const totalForgivenAmountUSD = Number(
     ((originalBalance * discountPercentage) / 100).toFixed(2)
   );
@@ -131,8 +134,16 @@ export function assessCharityCareEligibility(
 
   // Safe Harbor & Timelines under 26 U.S.C. § 501(r)(6)
   // Normalize to UTC midnight to avoid Daylight Saving Time (DST) 23h/25h transition hazards
-  const dateOnlyStr = statementDate.slice(0, 10);
-  const stmtDateUTC = new Date(`${dateOnlyStr}T00:00:00.000Z`);
+  let stmtDateUTC: Date;
+  if (statementDate && statementDate.trim().length >= 10) {
+    const dateOnlyStr = statementDate.trim().slice(0, 10);
+    stmtDateUTC = new Date(`${dateOnlyStr}T00:00:00.000Z`);
+    if (isNaN(stmtDateUTC.getTime())) {
+      stmtDateUTC = new Date();
+    }
+  } else {
+    stmtDateUTC = new Date();
+  }
   const todayStr = new Date().toISOString().slice(0, 10);
   const todayUTC = new Date(`${todayStr}T00:00:00.000Z`);
   const msDiff = todayUTC.getTime() - stmtDateUTC.getTime();
@@ -173,8 +184,8 @@ export function assessCharityCareEligibility(
     hospitalId: hospital.id,
     hospitalLegalName: hospital.legalName,
     evaluationDate: new Date().toISOString(),
-    householdSize,
-    annualHouseholdIncome,
+    householdSize: fplResult.householdSize,
+    annualHouseholdIncome: fplResult.annualHouseholdIncome,
     fplThresholdUSD: fplResult.povertyThreshold,
     fplPercentage: fplResult.povertyPercentage,
     tierType,

@@ -128,7 +128,10 @@ export const CharityCareBarometer: React.FC<CharityCareBarometerProps> = ({
               className="input-num"
               value={annualIncome || ''}
               placeholder="0"
-              onChange={(e) => onAnnualIncomeChange(Number(e.target.value) || 0)}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                onAnnualIncomeChange(Number.isFinite(val) && val >= 0 ? val : 0);
+              }}
               step="1000"
               min="0"
             />

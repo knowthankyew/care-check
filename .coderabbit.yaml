@@ -1,0 +1,86 @@
+# CodeRabbit Configuration for CareCheck
+# Targeted Scope: Medical Bill Audit, Section 501(r) Charity Care Reality Engine, Zero-Egress PHI Privacy & Supply Chain Assurance
+
+language: "en-US"
+
+reviews:
+  profile: "assertive"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  sequence_diagrams: true
+  auto_review:
+    enabled: true
+    drafts: false
+
+  # Filter out compiled distributions, media files, and local caches
+  path_filters:
+    - "!**/*.mp4"
+    - "!**/*.gif"
+    - "!**/*.webm"
+    - "!**/*.png"
+    - "!**/*.svg"
+    - "!dist/**"
+    - "!node_modules/**"
+    - "!bom.json"
+    - "!dist/bom.json"
+
+  path_instructions:
+    - path: "**/*"
+      instructions: |
+        You are performing an exhaustive architectural, security, mathematical, and data privacy audit for "CareCheck", an open-source, local-first medical bill audit and Section 501(r) charity care reality engine.
+
+        Evaluate all code against these non-negotiable architectural invariants:
+
+        1. ZERO PHI/PII NETWORK TRANSMISSION & AIR-GAPPED PRIVACY (CRITICAL):
+           - In `src/**`, strictly prohibit network egress primitives (`fetch`, `XMLHttpRequest`, `navigator.sendBeacon`, WebSocket, external scripts/analytics). All bill parsing, FPL calculations, and dispute letter generations must execute 100% locally in the patient's browser runtime.
+           - Enforce strict Content Security Policy (CSP) with `connect-src 'none'` in `index.html`.
+           - In `src/core/telemetry.ts`, verify telemetry runs in `memory_only` mode with `MemoryExporter` by default. Operational attributes must strictly adhere to `CARECHECK_ALLOWLIST_KEYS`. Raw medical bills, patient names, account numbers, CPT descriptions, and income amounts are strictly prohibited from telemetry spans or audit events.
+           - "Burn Local Data": Ensure the instant purge command completely wipes volatile memory, telemetry buffers, `localStorage`, `sessionStorage`, `caches`, and `indexedDB`.
+
+        2. SECTION 501(r) STATUTORY ARITHMETIC & SAFE HARBOR INVARIANTS:
+           - In `src/core/charity-care/engine.ts`:
+             - Federal Poverty Level (FPL) calculations under 42 U.S.C. § 9902(2) must accurately account for household size ($S \ge 1$), geographic poverty region (`contiguous`, `alaska`, `hawaii`), and baseline increments.
+             - FAP application window and Extraordinary Collection Action (ECA) Safe Harbor under 26 U.S.C. § 501(r)(6) must enforce a minimum 240-day protection window normalized to UTC midnight to avoid DST transition hazards.
+             - Under 26 U.S.C. § 501(r)(5), verify uninsured patients are capped at hospital Amounts Generally Billed (AGB) discount rates.
+             - Enforce strict numeric guards: guard against `NaN`, negative income, negative household size, or negative hospital balances.
+
+        3. PRICE AUDIT, BENCHMARKS & MARKUP MULTIPLIERS:
+           - In `src/core/price-audit/engine.ts`:
+             - Ensure billed charges are compared against published discounted cash prices (CMS 45 CFR Part 180) and Medicare allowable baseline rates.
+             - Multiplier classification: markups $\ge 4.0\times$ flagged as EXCESSIVE_MARKUP; markups $\ge 8.0\times$ flagged as PREDATORY_MARKUP.
+             - Verify detection of CMS NCCI unbundling risks and missing standardized procedure codes.
+             - Prevent division by zero and handle non-positive quantities or billed amounts gracefully.
+
+        4. STATUTORY DISPUTE DOCUMENT GENERATION & UPL SAFE HARBORS:
+           - In `src/core/letter-generator/engine.ts`:
+             - Ensure generated letters cite enforceable statutes (26 U.S.C. § 501(r)(4)-(6), 45 CFR Part 180, No Surprises Act 42 U.S.C. § 300gg-111, FDCPA 15 U.S.C. § 1692g).
+             - Verify rigorous HTML escaping and sanitization before rendering into printable HTML to prevent XSS.
+             - Ensure non-waivable Unauthorized Practice of Law (UPL) legal disclaimers are prominently embedded in all generated artifacts and user interfaces.
+
+        5. TESTING & CLAIMS AUDITING:
+           - In `scripts/audit-claims.mjs` and `tests/claims-linter.test.ts`, enforce static parity between documentation (`README.md`, `ARCHITECTURE.md`), statutory legal citations, and test inventories.
+           - Prohibit unprovable marketing adjectives ('bulletproof', 'conclusive', 'definitive', 'infinitely scalable').
+           - Verify that `KNOWTHANKYEW_PORTFOLIO_MASTER_BRIEF.md` test counts match actual test inventories.
+
+    - path: "src/core/**"
+      instructions: "Audit pure domain calculation engines for arithmetic precision, numeric bounds, NaN guards, zero-egress invariants, and statutory formula parity."
+
+    - path: "src/components/**"
+      instructions: "Audit React components for secure state management, input validation (numeric bounds, currency formatting), clean-state data purging, and zero network leakage."
+
+    - path: "policies/**"
+      instructions: "Audit statutory policy packs and hospital configurations for schema conformance and statutory citation accuracy."
+
+    - path: "tests/**"
+      instructions: "Audit test suites for edge-case coverage (NaNs, zero income, high-income caps, DST transitions, unbundling, XSS vectors)."
+
+knowledge_base:
+  opt_out: false
+  learnings:
+    scope: "auto"
+  linked_repositories:
+    - repository: "knowthankyew/privacy-telemetry"
+      instructions: "Contains canonical zero-egress invariants, cryptographic evidence sealing standards, and privacy schemas for the KnowThankYew suite."
+    - repository: "knowthankyew/portfolio-admin"
+      instructions: "Contains portfolio integration standards, Master Brief assertions, and administrative compliance specifications."

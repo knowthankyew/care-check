@@ -54,24 +54,29 @@ export function auditMedicalBill(
     const cashPrice = customCash ?? benchmark?.nationalMedianCashPriceUSD;
     const medicareRate = benchmark?.medicareBaselineRateUSD;
 
+    const rawCharge = Number(item.billedCharge);
+    const billedCharge = Number.isFinite(rawCharge) && rawCharge > 0 ? rawCharge : 0;
+    const rawQty = Number(item.quantity);
+    const quantity = Number.isFinite(rawQty) && rawQty > 0 ? rawQty : 1;
+
     let markupMultiplier: number | undefined;
     let linePotentialSavings = 0;
     const explanations: string[] = [];
 
     // 1. Cash Price Check
-    if (cashPrice !== undefined && item.billedCharge > cashPrice) {
+    if (cashPrice !== undefined && billedCharge > cashPrice) {
       flags.push('EXCEEDS_CASH_PRICE');
-      const diff = item.billedCharge - cashPrice;
+      const diff = Number((billedCharge - cashPrice).toFixed(2));
       linePotentialSavings = Math.max(linePotentialSavings, diff);
       explanations.push(
-        `Billed charge ($${item.billedCharge.toFixed(2)}) exceeds published cash rate ($${cashPrice.toFixed(2)}) by $${diff.toFixed(2)}.`
+        `Billed charge ($${billedCharge.toFixed(2)}) exceeds published cash rate ($${cashPrice.toFixed(2)}) by $${diff.toFixed(2)}.`
       );
     }
 
     // 2. Medicare Markup Multiplier Check
     // Compare total billed charge to total Medicare allowable baseline (medicareRate * quantity)
     if (medicareRate !== undefined && medicareRate > 0) {
-      markupMultiplier = Number((item.billedCharge / (medicareRate * (item.quantity || 1))).toFixed(1));
+      markupMultiplier = Number((billedCharge / (medicareRate * quantity)).toFixed(1));
 
       if (markupMultiplier >= 8.0) {
         flags.push('PREDATORY_MARKUP');
@@ -105,11 +110,11 @@ export function auditMedicalBill(
 
     // Determine fair settlement target for this line:
     // Prefer cash price; otherwise 125% of Medicare baseline; otherwise billed charge
-    let lineFairTarget = item.billedCharge;
+    let lineFairTarget = billedCharge;
     if (cashPrice !== undefined) {
       lineFairTarget = cashPrice;
     } else if (medicareRate !== undefined) {
-      lineFairTarget = Number((medicareRate * 1.25 * (item.quantity || 1)).toFixed(2));
+      lineFairTarget = Number((medicareRate * 1.25 * quantity).toFixed(2));
     }
     totalFairBaselineUSD += lineFairTarget;
 
@@ -124,7 +129,7 @@ export function auditMedicalBill(
       lineItemId: item.id,
       code: item.code,
       description: item.description,
-      billedCharge: item.billedCharge,
+      billedCharge,
       hospitalCashPrice: cashPrice,
       medicareBaselineRate: medicareRate,
       markupMultiplier,
@@ -134,11 +139,13 @@ export function auditMedicalBill(
     });
   }
 
-  let fairTarget = Math.min(bill.totalPatientResponsibility, totalFairBaselineUSD);
+  const rawResp = Number(bill.totalPatientResponsibility);
+  const patientResp = Number.isFinite(rawResp) && rawResp > 0 ? rawResp : 0;
+  let fairTarget = Math.min(patientResp, totalFairBaselineUSD);
   if (options.charityCareAssessment) {
     fairTarget = Math.min(fairTarget, options.charityCareAssessment.adjustedPatientBalanceUSD);
   }
-  const recommendedFairSettlementUSD = Number(fairTarget.toFixed(2));
+  const recommendedFairSettlementUSD = Number(Math.max(0, fairTarget).toFixed(2));
 
   const hasHighSeverityDiscrepancy =
     aggregatedFlags.has('EXCEEDS_CASH_PRICE') ||
