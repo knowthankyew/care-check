@@ -27,6 +27,7 @@
   "author": "CareCheck Contributors",
   "license": "MIT",
   "dependencies": {
+    "@knowthankyew/policy-packs": "file:../policy-packs",
     "@knowthankyew/privacy-telemetry": "file:../privacy-telemetry/packages/privacy-telemetry",
     "lucide-react": "^1.47.0",
     "react": "^18.3.1",

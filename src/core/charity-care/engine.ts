@@ -15,7 +15,7 @@ import type {
   CharityCareAssessmentParams,
   CharityCareTierType,
 } from '../../contracts/charity-care.js';
-import guidelinesData from '../../../data/fpl/guidelines.json' with { type: 'json' };
+import { fplGuidelinesDataset as guidelinesData } from '@knowthankyew/policy-packs/healthcare';
 
 const GUIDELINES = guidelinesData.guidelines as FplYearlyGuideline[];
 

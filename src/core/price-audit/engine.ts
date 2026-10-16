@@ -11,7 +11,7 @@ import type {
   PriceDiscrepancyType,
 } from '../../contracts/audit.js';
 import type { CharityCareAssessment } from '../../contracts/charity-care.js';
-import benchmarksData from '../../../data/benchmarks/shoppable-codes.json' with { type: 'json' };
+import { shoppableCodesData as benchmarksData } from '@knowthankyew/policy-packs/healthcare';
 
 interface BenchmarkItem {
   code: string;

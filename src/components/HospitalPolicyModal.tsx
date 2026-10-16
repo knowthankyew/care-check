@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import type { HospitalProfile, FapTier } from '../contracts/hospital.js';
-import hospitalsData from '../../data/hospitals/seed-hospitals.json' with { type: 'json' };
+import { seedHospitalsData as hospitalsData } from '@knowthankyew/policy-packs/healthcare';
 
 const SEED_HOSPITALS = hospitalsData as HospitalProfile[];
 

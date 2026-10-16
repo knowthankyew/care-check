@@ -14,7 +14,7 @@ import { mapHandoffToMedicalBill } from './core/handoff-adapter.js';
 import { HandoffBanner } from './components/HandoffBanner.js';
 import type { HospitalProfile } from './contracts/hospital.js';
 import type { ItemizedMedicalBill, BillLineItem } from './contracts/bill.js';
-import hospitalsData from '../data/hospitals/seed-hospitals.json' with { type: 'json' };
+import { seedHospitalsData as hospitalsData } from '@knowthankyew/policy-packs/healthcare';
 
 const HOSPITALS = hospitalsData as HospitalProfile[];
 
