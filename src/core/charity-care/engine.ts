@@ -134,19 +134,18 @@ export function assessCharityCareEligibility(
 
   // Safe Harbor & Timelines under 26 U.S.C. § 501(r)(6)
   // Normalize to UTC midnight to avoid Daylight Saving Time (DST) 23h/25h transition hazards
-  let ecaSafeHarborActive = false;
-  let daysRemaining = 0;
-  let daysElapsed = 0;
+  let ecaSafeHarborActive: boolean | null = null;
+  let daysRemaining: number | null = null;
 
   if (statementDate && typeof statementDate === 'string' && statementDate.trim().length >= 10) {
     const dateOnlyStr = statementDate.trim().slice(0, 10);
     const stmtDateUTC = new Date(`${dateOnlyStr}T00:00:00.000Z`);
-    if (!isNaN(stmtDateUTC.getTime())) {
+    if (!isNaN(stmtDateUTC.getTime()) && stmtDateUTC.toISOString().slice(0, 10) === dateOnlyStr) {
       const todayStr = new Date().toISOString().slice(0, 10);
       const todayUTC = new Date(`${todayStr}T00:00:00.000Z`);
       const msDiff = todayUTC.getTime() - stmtDateUTC.getTime();
-      daysElapsed = Math.max(0, Math.round(msDiff / (1000 * 60 * 60 * 24)));
-      const windowDays = hospital.fapApplicationWindowDays || 240;
+      const daysElapsed = Math.max(0, Math.round(msDiff / (1000 * 60 * 60 * 24)));
+      const windowDays = Math.max(240, hospital.fapApplicationWindowDays ?? 240);
       daysRemaining = Math.max(0, windowDays - daysElapsed);
       ecaSafeHarborActive = daysRemaining > 0;
     }
@@ -158,7 +157,7 @@ export function assessCharityCareEligibility(
     'Prior year IRS Form 1040 federal tax return or W-2 statement',
     'Last 2 to 3 consecutive pay stubs (or employer verification of wages)',
   ];
-  if (annualHouseholdIncome === 0) {
+  if (fplResult.annualHouseholdIncome === 0) {
     requiredDocumentsChecklist.push(
       'Written Statement of Zero Income / Letter of Support from housing provider'
     );

@@ -119,8 +119,11 @@ export function auditZeroEgress(errors = []) {
     }
 
     // Verify default configuration and MemoryExporter usage
-    if (!telContent.includes('export { MemoryExporter }') && !telContent.includes('MemoryExporter')) {
-      errors.push('Privacy violation in telemetry.ts: MemoryExporter must be exported/used');
+    if (!/new\s+MemoryExporter\s*\(/.test(telContent)) {
+      errors.push('Privacy violation in telemetry.ts: MemoryExporter must be instantiated as the default exporter');
+    }
+    if (!telContent.includes("mode: 'memory_only'")) {
+      errors.push("Privacy violation in telemetry.ts: Default mode must be explicitly 'memory_only'");
     }
     if (!telContent.includes("serviceName: 'care-check'")) {
       errors.push("Privacy violation in telemetry.ts: Default serviceName must be 'care-check'");
@@ -256,7 +259,7 @@ export function auditPortfolioMasterBrief(errors = [], { requireBrief = false } 
 
   if (documentedCount !== actualCount) {
     errors.push(
-      `Portfolio Brief Drift: KNOWTHANKYEW_PORTFOLIO_MASTER_BRIEF.md documents ${documentedCount}/${documentedCount} tests, but actual test suite has ${actualCount} tests.`
+      `Portfolio Brief Drift: KNOWTHANKYEW_PORTFOLIO_MASTER_BRIEF.md documents ${match[1]}/${match[2]} tests, but actual test suite has ${actualCount} tests.`
     );
     return false;
   }

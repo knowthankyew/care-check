@@ -91,9 +91,15 @@ export function getPrivacyClaims(report: PrivacyAuditReport): PrivacyClaims {
 }
 
 export class TelemetryManager extends BaseTelemetryManager {
+  public readonly exporter: MemoryExporter = new MemoryExporter();
+
   constructor(customConfig?: Partial<TelemetryConfig>) {
     super(
-      { serviceName: 'care-check', ...customConfig },
+      {
+        serviceName: 'care-check',
+        mode: 'memory_only',
+        ...customConfig,
+      },
       CARECHECK_ALLOWLIST_KEYS
     );
   }

@@ -47,8 +47,8 @@ export interface CharityCareAssessment {
   assetTestNotes?: string;
 
   // Statutory Safe Harbor (§ 501(r)(6))
-  ecaSafeHarborActive: boolean;
-  daysRemainingInApplicationWindow: number;
+  ecaSafeHarborActive: boolean | null;
+  daysRemainingInApplicationWindow: number | null;
   
   // Action Requirements
   requiredDocumentsChecklist: string[];

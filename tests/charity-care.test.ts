@@ -323,8 +323,35 @@ describe('CharityCareEngine - 501(r) Eligibility Assessment', () => {
     expect(assessment.annualHouseholdIncome).toBe(0);
     expect(assessment.originalPatientBalanceUSD).toBe(0);
     expect(assessment.totalForgivenAmountUSD).toBe(0);
-    expect(assessment.daysRemainingInApplicationWindow).toBe(0);
-    expect(assessment.ecaSafeHarborActive).toBe(false);
+    expect(assessment.daysRemainingInApplicationWindow).toBeNull();
+    expect(assessment.ecaSafeHarborActive).toBeNull();
+
+    // Invalid calendar date (e.g. Feb 31) fails strict ISO parity check and returns null
+    const invalidCalendarDate = assessCharityCareEligibility({
+      hospital: clevelandClinic,
+      householdSize: 2,
+      annualHouseholdIncome: 30000,
+      totalPatientBalance: 500,
+      statementDate: '2026-02-31',
+    });
+    expect(invalidCalendarDate.daysRemainingInApplicationWindow).toBeNull();
+    expect(invalidCalendarDate.ecaSafeHarborActive).toBeNull();
+
+    // Hospital cannot configure an application window shorter than statutory 240-day minimum
+    const shortWindowHospital = {
+      ...clevelandClinic,
+      fapApplicationWindowDays: 120, // Sub-statutory configuration
+    };
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const shortWindowAssessment = assessCharityCareEligibility({
+      hospital: shortWindowHospital,
+      householdSize: 1,
+      annualHouseholdIncome: 20000,
+      totalPatientBalance: 1000,
+      statementDate: todayStr,
+    });
+    expect(shortWindowAssessment.daysRemainingInApplicationWindow).toBe(240);
+    expect(shortWindowAssessment.ecaSafeHarborActive).toBe(true);
   });
 });
 

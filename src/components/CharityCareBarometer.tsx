@@ -208,7 +208,9 @@ export const CharityCareBarometer: React.FC<CharityCareBarometerProps> = ({
           </span>
         </div>
         <span className="safe-harbor-badge">
-          {assessment.daysRemainingInApplicationWindow} Days Remaining in Safe Window
+          {assessment.daysRemainingInApplicationWindow !== null
+            ? `${assessment.daysRemainingInApplicationWindow} Days Remaining in Safe Window`
+            : 'Safe Window Unknown'}
         </span>
       </div>
     </div>

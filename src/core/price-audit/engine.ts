@@ -139,6 +139,8 @@ export function auditMedicalBill(
     });
   }
 
+  const rawBilled = Number(bill.totalBilledCharge);
+  const totalBilledCharge = Number.isFinite(rawBilled) && rawBilled > 0 ? rawBilled : 0;
   const rawResp = Number(bill.totalPatientResponsibility);
   const patientResp = Number.isFinite(rawResp) && rawResp > 0 ? rawResp : 0;
   let fairTarget = Math.min(patientResp, totalFairBaselineUSD);
@@ -156,8 +158,8 @@ export function auditMedicalBill(
     billId: bill.id,
     hospitalId: bill.hospitalId,
     hospitalName: bill.hospitalName,
-    totalBilledCharge: bill.totalBilledCharge,
-    totalPatientResponsibility: bill.totalPatientResponsibility,
+    totalBilledCharge,
+    totalPatientResponsibility: patientResp,
     totalPotentialSavingsUSD: Number(totalPotentialSavingsUSD.toFixed(2)),
     recommendedFairSettlementUSD,
     lineItemAudits,
