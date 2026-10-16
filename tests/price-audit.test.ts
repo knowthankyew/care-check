@@ -202,6 +202,47 @@ describe('PriceAuditEngine', () => {
     expect(audit.recommendedFairSettlementUSD).toBe(0);
     expect(audit.lineItemAudits[0]!.billedCharge).toBe(0);
   });
+
+  it('scales cash price by quantity and safely ignores invalid custom cash prices', () => {
+    const multiQtyBill: ItemizedMedicalBill = {
+      id: 'bill-multi',
+      accountNumber: 'ACC-MULTI',
+      hospitalId: 'generic-hospital',
+      hospitalName: 'Community Hospital',
+      patientName: 'Multi Test',
+      statementDate: '2026-09-01',
+      hasItemizedBreakdown: true,
+      totalBilledCharge: 2000,
+      totalInsurancePaid: 0,
+      totalPatientResponsibility: 2000,
+      lineItems: [
+        {
+          id: 'line-m1',
+          codeType: 'CPT',
+          code: '93306', // Benchmark cash: $680
+          description: 'Echocardiogram x 2',
+          quantity: 2,
+          billedCharge: 2000,
+          patientResponsibility: 2000,
+        },
+      ],
+    };
+
+    // Quantity 2 * $680 = $1,360 total cash baseline -> savings = $2,000 - $1,360 = $640
+    const auditWithScaledQty = auditMedicalBill(multiQtyBill);
+    const lineAudit = auditWithScaledQty.lineItemAudits[0]!;
+    expect(lineAudit.potentialSavingsUSD).toBe(640);
+    expect(lineAudit.flags).toContain('EXCEEDS_CASH_PRICE');
+
+    // Negative custom cash price must be rejected and fallback to benchmark
+    const auditWithInvalidCustom = auditMedicalBill(multiQtyBill, {
+      customCashPricesByCode: {
+        '93306': -100, // Invalid negative custom price
+      },
+    });
+    expect(auditWithInvalidCustom.lineItemAudits[0]!.hospitalCashPrice).toBe(680);
+    expect(auditWithInvalidCustom.lineItemAudits[0]!.potentialSavingsUSD).toBe(640);
+  });
 });
 
 

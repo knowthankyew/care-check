@@ -47,14 +47,27 @@ const REQUIRED_STATUTES = [
  * Audit 1: Zero-Egress & Air-Gapped Privacy Invariants
  */
 export function auditZeroEgress(errors = []) {
-  // Check index.html CSP
+  // Check index.html CSP tag directly, ignoring comments
   const indexPath = resolve(REPO_ROOT, 'index.html');
   if (!existsSync(indexPath)) {
     errors.push('Missing index.html file');
   } else {
-    const indexContent = readFileSync(indexPath, 'utf-8');
-    if (!indexContent.includes("connect-src 'none'")) {
-      errors.push("index.html CSP violation: Missing connect-src 'none' directive");
+    const rawIndex = readFileSync(indexPath, 'utf-8');
+    const indexContent = rawIndex.replace(/<!--[\s\S]*?-->/g, '');
+    const metaCspMatch =
+      indexContent.match(/<meta\s+[^>]*http-equiv\s*=\s*["']Content-Security-Policy["'][^>]*content\s*=\s*(["'])([\s\S]*?)\1[^>]*>/i) ||
+      indexContent.match(/<meta\s+[^>]*content\s*=\s*(["'])([\s\S]*?)\1[^>]*http-equiv\s*=\s*["']Content-Security-Policy["'][^>]*>/i);
+
+    if (!metaCspMatch) {
+      errors.push('index.html CSP violation: Missing active <meta http-equiv="Content-Security-Policy"> tag');
+    } else {
+      const cspDirectives = metaCspMatch[2].split(';').map((d) => d.trim()).filter(Boolean);
+      const connectSrc = cspDirectives.find((d) => /^connect-src\b/i.test(d));
+      if (!connectSrc) {
+        errors.push('index.html CSP violation: Missing connect-src directive in Content-Security-Policy');
+      } else if (connectSrc.replace(/\s+/g, ' ').toLowerCase() !== "connect-src 'none'") {
+        errors.push(`index.html CSP violation: Expected "connect-src 'none'", but found "${connectSrc}"`);
+      }
     }
   }
 
@@ -76,8 +89,12 @@ export function auditZeroEgress(errors = []) {
             return;
           }
 
-          // Check for forbidden network calls
-          if (/\bfetch\s*\(|\bXMLHttpRequest\b|\bnavigator\.sendBeacon\b|\bnew\s+WebSocket\b|\baxios\b|\bnew\s+EventSource\b/.test(line)) {
+          // Check for forbidden network calls including computed bracket property access
+          if (
+            /(?:\bfetch\s*\(|\b(?:XMLHttpRequest|axios)\b|\[\s*['"`](?:fetch|XMLHttpRequest|sendBeacon|WebSocket|EventSource|axios)['"`]\s*\]|\bnavigator\s*(?:\.\s*sendBeacon|\[\s*['"`]sendBeacon['"`]\s*\])|\bnew\s+(?:WebSocket|EventSource)\b)/.test(
+              line
+            )
+          ) {
             errors.push(`Privacy violation in ${fullPath.replace(REPO_ROOT + '/', '')}:${lineIdx + 1}: Unauthorized network primitive detected: ${trimmed}`);
           }
         });
@@ -224,11 +241,16 @@ export function auditPolicyPacks(errors = []) {
 /**
  * Audit 5: Portfolio Master Brief Parity
  */
-export function auditPortfolioMasterBrief(errors = [], { requireBrief = false } = {}) {
-  const briefCandidates = [
-    resolve(DEV_ROOT, 'KNOWTHANKYEW_PORTFOLIO_MASTER_BRIEF.md'),
-    resolve(REPO_ROOT, 'KNOWTHANKYEW_PORTFOLIO_MASTER_BRIEF.md'),
-  ];
+export function auditPortfolioMasterBrief(
+  errors = [],
+  { requireBrief = false, overrideBriefPath = null } = {}
+) {
+  const briefCandidates = overrideBriefPath
+    ? [overrideBriefPath]
+    : [
+        resolve(DEV_ROOT, 'KNOWTHANKYEW_PORTFOLIO_MASTER_BRIEF.md'),
+        resolve(REPO_ROOT, 'KNOWTHANKYEW_PORTFOLIO_MASTER_BRIEF.md'),
+      ];
   const briefPath = briefCandidates.find((p) => existsSync(p));
 
   if (!briefPath) {

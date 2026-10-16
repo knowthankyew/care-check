@@ -19,8 +19,15 @@ export const BillAuditWorkbench: React.FC<BillAuditWorkbenchProps> = ({
   const [newAmount, setNewAmount] = useState('1850');
 
   const handleAddLineItem = () => {
-    const raw = parseFloat(newAmount);
-    const amount = Number.isFinite(raw) && raw > 0 ? Number(raw.toFixed(2)) : 0;
+    const trimmed = newAmount.trim();
+    if (!/^\d+(\.\d+)?$/.test(trimmed)) {
+      return;
+    }
+    const raw = parseFloat(trimmed);
+    if (!Number.isFinite(raw) || raw <= 0) {
+      return;
+    }
+    const amount = Number(raw.toFixed(2));
     const newItem: BillLineItem = {
       id: `line-${Date.now()}`,
       codeType: 'CPT',

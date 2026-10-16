@@ -44,7 +44,12 @@ export function calculateFpl(params: FplCalculationParams): FplCalculationResult
     regionData.baseAmount + (householdSize - 1) * regionData.incrementPerPerson;
 
   const rawIncome = Number(params.annualHouseholdIncome);
-  const income = Number.isFinite(rawIncome) && rawIncome > 0 ? rawIncome : 0;
+  if (!Number.isFinite(rawIncome) || rawIncome < 0) {
+    throw new RangeError(
+      `annualHouseholdIncome must be a finite, non-negative number; received ${params.annualHouseholdIncome}`
+    );
+  }
+  const income = rawIncome;
   const povertyPercentage = Number(((income / povertyThreshold) * 100).toFixed(2));
 
   return {
@@ -132,9 +137,11 @@ export function assessCharityCareEligibility(
     Math.max(0, originalBalance - totalForgivenAmountUSD).toFixed(2)
   );
 
-  // Safe Harbor & Timelines under 26 U.S.C. § 501(r)(6)
-  // Normalize to UTC midnight to avoid Daylight Saving Time (DST) 23h/25h transition hazards
-  let ecaSafeHarborActive: boolean | null = null;
+  // Safe Harbor & Timelines under 26 U.S.C. § 501(r)(6) / 26 CFR § 1.501(r)-6
+  // FAP application window runs for at least 240 days from statement date.
+  // ECA (Extraordinary Collection Actions) protection requires 120-day notice and reasonable efforts facts;
+  // it cannot be determined solely from the 240-day FAP deadline, so remains unknown (null).
+  const ecaSafeHarborActive: boolean | null = null;
   let daysRemaining: number | null = null;
 
   if (statementDate && typeof statementDate === 'string' && statementDate.trim().length >= 10) {
@@ -147,7 +154,6 @@ export function assessCharityCareEligibility(
       const daysElapsed = Math.max(0, Math.round(msDiff / (1000 * 60 * 60 * 24)));
       const windowDays = Math.max(240, hospital.fapApplicationWindowDays ?? 240);
       daysRemaining = Math.max(0, windowDays - daysElapsed);
-      ecaSafeHarborActive = daysRemaining > 0;
     }
   }
 

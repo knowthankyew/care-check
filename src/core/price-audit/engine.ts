@@ -50,8 +50,12 @@ export function auditMedicalBill(
   for (const item of bill.lineItems) {
     const flags: PriceDiscrepancyType[] = [];
     const benchmark = BENCHMARKS_MAP.get(item.code);
-    const customCash = options.customCashPricesByCode?.[item.code];
-    const cashPrice = customCash ?? benchmark?.nationalMedianCashPriceUSD;
+    const rawCustom = options.customCashPricesByCode?.[item.code];
+    const validCustomCash =
+      typeof rawCustom === 'number' && Number.isFinite(rawCustom) && rawCustom >= 0
+        ? rawCustom
+        : undefined;
+    const cashPrice = validCustomCash ?? benchmark?.nationalMedianCashPriceUSD;
     const medicareRate = benchmark?.medicareBaselineRateUSD;
 
     const rawCharge = Number(item.billedCharge);
@@ -63,27 +67,31 @@ export function auditMedicalBill(
     let linePotentialSavings = 0;
     const explanations: string[] = [];
 
-    // 1. Cash Price Check
-    if (cashPrice !== undefined && billedCharge > cashPrice) {
+    // 1. Cash Price Check (scaled by line quantity)
+    const totalCashPrice =
+      cashPrice !== undefined ? Number((cashPrice * quantity).toFixed(2)) : undefined;
+
+    if (totalCashPrice !== undefined && billedCharge > totalCashPrice) {
       flags.push('EXCEEDS_CASH_PRICE');
-      const diff = Number((billedCharge - cashPrice).toFixed(2));
+      const diff = Number((billedCharge - totalCashPrice).toFixed(2));
       linePotentialSavings = Math.max(linePotentialSavings, diff);
       explanations.push(
-        `Billed charge ($${billedCharge.toFixed(2)}) exceeds published cash rate ($${cashPrice.toFixed(2)}) by $${diff.toFixed(2)}.`
+        `Billed charge ($${billedCharge.toFixed(2)}) exceeds published cash rate ($${totalCashPrice.toFixed(2)} for qty ${quantity}) by $${diff.toFixed(2)}.`
       );
     }
 
     // 2. Medicare Markup Multiplier Check
     // Compare total billed charge to total Medicare allowable baseline (medicareRate * quantity)
     if (medicareRate !== undefined && medicareRate > 0) {
-      markupMultiplier = Number((billedCharge / (medicareRate * quantity)).toFixed(1));
+      const unroundedRatio = billedCharge / (medicareRate * quantity);
+      markupMultiplier = Number(unroundedRatio.toFixed(1));
 
-      if (markupMultiplier >= 8.0) {
+      if (unroundedRatio >= 8.0) {
         flags.push('PREDATORY_MARKUP');
         explanations.push(
           `Chargemaster markup is ${markupMultiplier}x the Medicare allowable baseline ($${medicareRate.toFixed(2)}), exceeding federal fair-pricing standards.`
         );
-      } else if (markupMultiplier >= 4.0) {
+      } else if (unroundedRatio >= 4.0) {
         flags.push('EXCESSIVE_MARKUP');
         explanations.push(
           `Billed charge reflects an excessive chargemaster markup (${markupMultiplier}x Medicare baseline of $${medicareRate.toFixed(2)}).`
@@ -109,10 +117,10 @@ export function auditMedicalBill(
     }
 
     // Determine fair settlement target for this line:
-    // Prefer cash price; otherwise 125% of Medicare baseline; otherwise billed charge
+    // Prefer total cash price; otherwise 125% of Medicare baseline; otherwise billed charge
     let lineFairTarget = billedCharge;
-    if (cashPrice !== undefined) {
-      lineFairTarget = cashPrice;
+    if (totalCashPrice !== undefined) {
+      lineFairTarget = totalCashPrice;
     } else if (medicareRate !== undefined) {
       lineFairTarget = Number((medicareRate * 1.25 * quantity).toFixed(2));
     }

@@ -72,7 +72,7 @@ describe('CharityCareEngine - 501(r) Eligibility Assessment', () => {
     expect(assessment.discountPercentage).toBe(100);
     expect(assessment.totalForgivenAmountUSD).toBe(12500);
     expect(assessment.adjustedPatientBalanceUSD).toBe(0);
-    expect(assessment.ecaSafeHarborActive).toBe(true);
+    expect(assessment.ecaSafeHarborActive).toBeNull();
   });
 
   it('qualifies for sliding scale tier (251% - 300% FPL) under Cleveland Clinic policy', () => {
@@ -176,12 +176,12 @@ describe('CharityCareEngine - 501(r) Eligibility Assessment', () => {
       evaluationYear: 2026,
     });
 
-    expect(assessment.ecaSafeHarborActive).toBe(true);
+    expect(assessment.ecaSafeHarborActive).toBeNull();
     expect(assessment.daysRemainingInApplicationWindow).toBe(140);
   });
 
   it('handles edge cases: zero income, negative income, and household size 0', () => {
-    // Zero income
+    // Zero income is valid and yields 0% FPL
     const zeroRes = calculateFpl({
       householdSize: 1,
       annualHouseholdIncome: 0,
@@ -190,14 +190,14 @@ describe('CharityCareEngine - 501(r) Eligibility Assessment', () => {
     expect(zeroRes.annualHouseholdIncome).toBe(0);
     expect(zeroRes.povertyPercentage).toBe(0);
 
-    // Negative income should clamp to 0
-    const negRes = calculateFpl({
-      householdSize: 1,
-      annualHouseholdIncome: -5000,
-      year: 2026,
-    });
-    expect(negRes.annualHouseholdIncome).toBe(0);
-    expect(negRes.povertyPercentage).toBe(0);
+    // Negative income throws RangeError
+    expect(() =>
+      calculateFpl({
+        householdSize: 1,
+        annualHouseholdIncome: -5000,
+        year: 2026,
+      })
+    ).toThrow(RangeError);
 
     // Household size of 0 should clamp to minimum 1
     const zeroHhRes = calculateFpl({
@@ -299,23 +299,41 @@ describe('CharityCareEngine - 501(r) Eligibility Assessment', () => {
   });
 
   it('resiliently handles NaN, non-numeric values, negative balances, and malformed statement dates', () => {
-    // Household size NaN defaults to 1, income NaN defaults to 0
-    const nanRes = calculateFpl({
-      householdSize: NaN,
-      annualHouseholdIncome: NaN,
-      year: 2026,
-    });
-    expect(nanRes.householdSize).toBe(1);
-    expect(nanRes.annualHouseholdIncome).toBe(0);
-    expect(nanRes.povertyPercentage).toBe(0);
-    expect(Number.isFinite(nanRes.povertyThreshold)).toBe(true);
+    // Household size NaN defaults to 1
+    expect(() =>
+      calculateFpl({
+        householdSize: NaN,
+        annualHouseholdIncome: NaN,
+        year: 2026,
+      })
+    ).toThrow(RangeError);
+
+    expect(() =>
+      calculateFpl({
+        householdSize: 1,
+        annualHouseholdIncome: -5000,
+        year: 2026,
+      })
+    ).toThrow(RangeError);
+
+    // Negative income throws RangeError in eligibility assessment
+    expect(() =>
+      assessCharityCareEligibility({
+        hospital: clevelandClinic,
+        householdSize: NaN,
+        annualHouseholdIncome: -5000,
+        totalPatientBalance: NaN,
+        statementDate: 'invalid-date-format',
+        evaluationYear: 2026,
+      })
+    ).toThrow(RangeError);
 
     // Negative patient balance clamped to 0, malformed statement date defaults safely
     const assessment = assessCharityCareEligibility({
       hospital: clevelandClinic,
       householdSize: NaN,
-      annualHouseholdIncome: -5000,
-      totalPatientBalance: NaN,
+      annualHouseholdIncome: 0,
+      totalPatientBalance: -500,
       statementDate: 'invalid-date-format',
       evaluationYear: 2026,
     });
@@ -351,7 +369,7 @@ describe('CharityCareEngine - 501(r) Eligibility Assessment', () => {
       statementDate: todayStr,
     });
     expect(shortWindowAssessment.daysRemainingInApplicationWindow).toBe(240);
-    expect(shortWindowAssessment.ecaSafeHarborActive).toBe(true);
+    expect(shortWindowAssessment.ecaSafeHarborActive).toBeNull();
   });
 });
 

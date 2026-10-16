@@ -130,7 +130,9 @@ export const CharityCareBarometer: React.FC<CharityCareBarometerProps> = ({
               placeholder="0"
               onChange={(e) => {
                 const val = Number(e.target.value);
-                onAnnualIncomeChange(Number.isFinite(val) && val >= 0 ? val : 0);
+                if (Number.isFinite(val) && val >= 0) {
+                  onAnnualIncomeChange(val);
+                }
               }}
               step="1000"
               min="0"
@@ -186,7 +188,7 @@ export const CharityCareBarometer: React.FC<CharityCareBarometerProps> = ({
         </div>
       </div>
 
-      {/* Safe Harbor Banner */}
+      {/* Safe Harbor / Application Window Banner */}
       <div className="safe-harbor-bar">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <svg
@@ -203,14 +205,14 @@ export const CharityCareBarometer: React.FC<CharityCareBarometerProps> = ({
             <polyline points="12 6 12 12 16 14" />
           </svg>
           <span className="safe-harbor-text">
-            <strong>26 U.S.C. § 501(r)(6) Statutory ECA Safe Harbor:</strong> Non-profit hospitals must
-            suspend debt collection lawsuits and credit bureau reporting.
+            <strong>26 U.S.C. § 501(r)(6) Statutory FAP Application Window:</strong> Non-profit hospitals must
+            accept financial assistance applications for at least 240 days from the statement date.
           </span>
         </div>
         <span className="safe-harbor-badge">
           {assessment.daysRemainingInApplicationWindow !== null
-            ? `${assessment.daysRemainingInApplicationWindow} Days Remaining in Safe Window`
-            : 'Safe Window Unknown'}
+            ? `${assessment.daysRemainingInApplicationWindow} Days Remaining in FAP Window`
+            : 'FAP Window Unknown'}
         </span>
       </div>
     </div>
