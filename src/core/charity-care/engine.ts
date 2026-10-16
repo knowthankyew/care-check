@@ -134,23 +134,23 @@ export function assessCharityCareEligibility(
 
   // Safe Harbor & Timelines under 26 U.S.C. § 501(r)(6)
   // Normalize to UTC midnight to avoid Daylight Saving Time (DST) 23h/25h transition hazards
-  let stmtDateUTC: Date;
-  if (statementDate && statementDate.trim().length >= 10) {
+  let ecaSafeHarborActive = false;
+  let daysRemaining = 0;
+  let daysElapsed = 0;
+
+  if (statementDate && typeof statementDate === 'string' && statementDate.trim().length >= 10) {
     const dateOnlyStr = statementDate.trim().slice(0, 10);
-    stmtDateUTC = new Date(`${dateOnlyStr}T00:00:00.000Z`);
-    if (isNaN(stmtDateUTC.getTime())) {
-      stmtDateUTC = new Date();
+    const stmtDateUTC = new Date(`${dateOnlyStr}T00:00:00.000Z`);
+    if (!isNaN(stmtDateUTC.getTime())) {
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const todayUTC = new Date(`${todayStr}T00:00:00.000Z`);
+      const msDiff = todayUTC.getTime() - stmtDateUTC.getTime();
+      daysElapsed = Math.max(0, Math.round(msDiff / (1000 * 60 * 60 * 24)));
+      const windowDays = hospital.fapApplicationWindowDays || 240;
+      daysRemaining = Math.max(0, windowDays - daysElapsed);
+      ecaSafeHarborActive = daysRemaining > 0;
     }
-  } else {
-    stmtDateUTC = new Date();
   }
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const todayUTC = new Date(`${todayStr}T00:00:00.000Z`);
-  const msDiff = todayUTC.getTime() - stmtDateUTC.getTime();
-  const daysElapsed = Math.max(0, Math.round(msDiff / (1000 * 60 * 60 * 24)));
-  const windowDays = hospital.fapApplicationWindowDays || 240;
-  const daysRemaining = Math.max(0, windowDays - daysElapsed);
-  const ecaSafeHarborActive = daysRemaining > 0;
 
   // Required Documentation Checklist
   const requiredDocumentsChecklist: string[] = [

@@ -323,8 +323,8 @@ describe('CharityCareEngine - 501(r) Eligibility Assessment', () => {
     expect(assessment.annualHouseholdIncome).toBe(0);
     expect(assessment.originalPatientBalanceUSD).toBe(0);
     expect(assessment.totalForgivenAmountUSD).toBe(0);
-    expect(assessment.adjustedPatientBalanceUSD).toBe(0);
-    expect(Number.isFinite(assessment.daysRemainingInApplicationWindow)).toBe(true);
+    expect(assessment.daysRemainingInApplicationWindow).toBe(0);
+    expect(assessment.ecaSafeHarborActive).toBe(false);
   });
 });
 

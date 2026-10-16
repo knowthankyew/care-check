@@ -77,7 +77,7 @@ export function auditZeroEgress(errors = []) {
           }
 
           // Check for forbidden network calls
-          if (/\b(fetch\s*\(|XMLHttpRequest|navigator\.sendBeacon|new\s+WebSocket)\b/.test(line)) {
+          if (/\bfetch\s*\(|\bXMLHttpRequest\b|\bnavigator\.sendBeacon\b|\bnew\s+WebSocket\b|\baxios\b|\bnew\s+EventSource\b/.test(line)) {
             errors.push(`Privacy violation in ${fullPath.replace(REPO_ROOT + '/', '')}:${lineIdx + 1}: Unauthorized network primitive detected: ${trimmed}`);
           }
         });
@@ -89,15 +89,41 @@ export function auditZeroEgress(errors = []) {
     scanFiles(srcDir);
   }
 
-  // Check telemetry allowlist does not contain PHI/PII keys
+  // Check telemetry allowlist does not contain PHI/PII keys and verifies memory-only default
   const telemetryPath = resolve(REPO_ROOT, 'src/core/telemetry.ts');
   if (existsSync(telemetryPath)) {
     const telContent = readFileSync(telemetryPath, 'utf-8');
     const prohibitedTelemetryKeys = ['patient_name', 'ssn', 'income', 'cpt_code', 'account_number', 'diagnosis'];
-    for (const key of prohibitedTelemetryKeys) {
-      if (telContent.includes(`'${key}'`)) {
-        errors.push(`Privacy violation in telemetry.ts: Prohibited PHI/PII attribute key detected in allowlist: '${key}'`);
+
+    // Parse CARECHECK_ALLOWLIST_KEYS definition
+    const allowlistMatch = telContent.match(/CARECHECK_ALLOWLIST_KEYS[^{]*=\s*new\s+Set\(\[\s*([\s\S]*?)\s*\]\)/);
+    if (!allowlistMatch) {
+      errors.push('Privacy violation in telemetry.ts: CARECHECK_ALLOWLIST_KEYS set definition not found');
+    } else {
+      const parsedKeys = allowlistMatch[1]
+        .split('\n')
+        .map((line) => line.replace(/\/\/.*$/, '').trim())
+        .filter(Boolean)
+        .map((item) => item.replace(/['",]/g, '').trim())
+        .filter(Boolean);
+
+      if (parsedKeys.length === 0) {
+        errors.push('Privacy violation in telemetry.ts: CARECHECK_ALLOWLIST_KEYS is empty');
       }
+
+      for (const key of prohibitedTelemetryKeys) {
+        if (parsedKeys.includes(key)) {
+          errors.push(`Privacy violation in telemetry.ts: Prohibited PHI/PII attribute key detected in allowlist: '${key}'`);
+        }
+      }
+    }
+
+    // Verify default configuration and MemoryExporter usage
+    if (!telContent.includes('export { MemoryExporter }') && !telContent.includes('MemoryExporter')) {
+      errors.push('Privacy violation in telemetry.ts: MemoryExporter must be exported/used');
+    }
+    if (!telContent.includes("serviceName: 'care-check'")) {
+      errors.push("Privacy violation in telemetry.ts: Default serviceName must be 'care-check'");
     }
   }
 }
