@@ -69,6 +69,12 @@ export function auditZeroEgress(errors = []) {
         errors.push(`index.html CSP violation: Expected "connect-src 'none'", but found "${connectSrc}"`);
       }
     }
+
+    // Prohibit remote script, link stylesheet, or image tags in index.html
+    const remoteTagMatch = indexContent.match(/<(?:script|link|img)\s+[^>]*(?:src|href)\s*=\s*["']https?:\/\//i);
+    if (remoteTagMatch) {
+      errors.push(`index.html security violation: Remote asset tag detected in index.html: ${remoteTagMatch[0]}`);
+    }
   }
 
   // Scan src/ for unauthorized network primitives
@@ -89,9 +95,9 @@ export function auditZeroEgress(errors = []) {
             return;
           }
 
-          // Check for forbidden network calls including computed bracket property access
+          // Check for forbidden network calls including computed bracket property access, dynamic imports, and image beacons
           if (
-            /(?:\bfetch\s*\(|\b(?:XMLHttpRequest|axios)\b|\[\s*['"`](?:fetch|XMLHttpRequest|sendBeacon|WebSocket|EventSource|axios)['"`]\s*\]|\bnavigator\s*(?:\.\s*sendBeacon|\[\s*['"`]sendBeacon['"`]\s*\])|\bnew\s+(?:WebSocket|EventSource)\b)/.test(
+            /(?:\bfetch\s*\(|\b(?:XMLHttpRequest|axios)\b|\[\s*['"`](?:fetch|XMLHttpRequest|sendBeacon|WebSocket|EventSource|axios)['"`]\s*\]|\bnavigator\s*(?:\.\s*sendBeacon|\[\s*['"`]sendBeacon['"`]\s*\])|\bnew\s+(?:WebSocket|EventSource|Image)\b|\bimport\s*\(\s*['"`]https?:\/\/|\b(?:window|globalThis|self)\s*(?:\.\s*fetch|\[\s*['"`]fetch['"`]\s*\]))/.test(
               line
             )
           ) {
@@ -184,6 +190,7 @@ export function auditVocabulary(errors = []) {
   const docsToCheck = [
     resolve(REPO_ROOT, 'README.md'),
     resolve(REPO_ROOT, 'ARCHITECTURE.md'),
+    resolve(REPO_ROOT, 'docs/ARCHITECTURE.md'),
   ];
 
   for (const docPath of docsToCheck) {
