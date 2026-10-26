@@ -28,7 +28,9 @@ const REPO_ROOT = resolve(__dirname, '..');
 const DEV_ROOT = resolve(REPO_ROOT, '..');
 
 const PROHIBITED_WORDS = [
-  /\bbulletproof\b/i,
+  /\bbullet-?proof\b/i,
+  /\brock\s+solid\b/i,
+  /\brock\s+solid\b/i,
   /\bconclusive\b/i,
   /\bdefinitive\b/i,
   /\binfinitely scalable\b/i,
@@ -96,11 +98,7 @@ export function auditZeroEgress(errors = []) {
           }
 
           // Check for forbidden network calls including computed bracket property access, dynamic imports, and image beacons
-          if (
-            /(?:\bfetch\s*\(|\b(?:XMLHttpRequest|axios)\b|\[\s*['"`](?:fetch|XMLHttpRequest|sendBeacon|WebSocket|EventSource|axios)['"`]\s*\]|\bnavigator\s*(?:\.\s*sendBeacon|\[\s*['"`]sendBeacon['"`]\s*\])|\bnew\s+(?:WebSocket|EventSource|Image)\b|\bimport\s*\(\s*['"`]https?:\/\/|\b(?:window|globalThis|self)\s*(?:\.\s*fetch|\[\s*['"`]fetch['"`]\s*\]))/.test(
-              line
-            )
-          ) {
+          if (/(?:\b(?:fetch|\??\.\s*fetch)\s*\(|=\s*fetch\b|\b(?:XMLHttpRequest|axios)\b|\[\s*['"`](?:fetch|XMLHttpRequest|sendBeacon|WebSocket|EventSource|axios)['"`]\s*\]|\bnavigator\s*(?:\??\.\s*sendBeacon|\[\s*['"`]sendBeacon['"`]\s*\])|\bnew\s+(?:WebSocket|EventSource|Image)\b|\bnew\s+Worker\s*\(\s*(?:new\s+URL\s*\(\s*)?['\"`]https?:\/\/|\bimport\s*\(\s*['"`]https?:\/\/|\bdocument\s*(?:\??\.\s*createElement|\[\s*['"`]createElement['"`]\s*\])\s*\(\s*['"`]script['"`]\s*\)|\b(?:window|globalThis|self)\s*(?:\.\s*fetch|\[\s*['"`]fetch['"`]\s*\]))/.test(line)) {
             errors.push(`Privacy violation in ${fullPath.replace(REPO_ROOT + '/', '')}:${lineIdx + 1}: Unauthorized network primitive detected: ${trimmed}`);
           }
         });
@@ -189,9 +187,17 @@ export function auditStatutoryParity(errors = []) {
 export function auditVocabulary(errors = []) {
   const docsToCheck = [
     resolve(REPO_ROOT, 'README.md'),
+    resolve(REPO_ROOT, 'ROADMAP.md'),
     resolve(REPO_ROOT, 'ARCHITECTURE.md'),
-    resolve(REPO_ROOT, 'docs/ARCHITECTURE.md'),
   ];
+  const docsDir = resolve(REPO_ROOT, 'docs');
+  if (existsSync(docsDir)) {
+    for (const entry of readdirSync(docsDir)) {
+      if (entry.endsWith('.md')) {
+        docsToCheck.push(resolve(docsDir, entry));
+      }
+    }
+  }
 
   for (const docPath of docsToCheck) {
     if (!existsSync(docPath)) continue;
