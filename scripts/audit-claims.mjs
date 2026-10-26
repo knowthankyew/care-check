@@ -18,8 +18,27 @@
  */
 
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { resolve, dirname, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  stripLineComment,
+  stripBlockComments,
+  FORBIDDEN_NETWORK_REGEX,
+  testNetworkPrimitive,
+  scanSourceForNetworkPrimitives,
+  scanDocumentationForVocabulary,
+  BANNED_VOCABULARY,
+} from './claims-linter-core.mjs';
+
+export {
+  stripLineComment,
+  stripBlockComments,
+  FORBIDDEN_NETWORK_REGEX,
+  testNetworkPrimitive,
+  scanSourceForNetworkPrimitives,
+  scanDocumentationForVocabulary,
+  BANNED_VOCABULARY,
+};
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -48,7 +67,16 @@ const REQUIRED_STATUTES = [
 /**
  * Audit 1: Zero-Egress & Air-Gapped Privacy Invariants
  */
-export function auditZeroEgress(errors = []) {
+export function auditZeroEgress(errors = [], { overrideCodeSnippets = null } = {}) {
+  if (Array.isArray(overrideCodeSnippets)) {
+    overrideCodeSnippets.forEach((snippet, idx) => {
+      if (testNetworkPrimitive(snippet)) {
+        errors.push(`Privacy violation in snippet ${idx + 1}: Unauthorized network primitive detected: ${snippet}`);
+      }
+    });
+    return;
+  }
+
   // Check index.html CSP tag directly, ignoring comments
   const indexPath = resolve(REPO_ROOT, 'index.html');
   if (!existsSync(indexPath)) {
@@ -88,20 +116,10 @@ export function auditZeroEgress(errors = []) {
       if (entry.isDirectory()) {
         scanFiles(fullPath);
       } else if (/\.(ts|tsx|js|mjs)$/.test(entry.name)) {
+        const relPath = relative(REPO_ROOT, fullPath).split(sep).join('/');
         const content = readFileSync(fullPath, 'utf-8');
-        const lines = content.split('\n');
-        lines.forEach((line, lineIdx) => {
-          // Ignore comments or documentation of rules
-          const trimmed = line.trim();
-          if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) {
-            return;
-          }
-
-          // Check for forbidden network calls including computed bracket property access, dynamic imports, and image beacons
-          if (/(?:\b(?:fetch|\??\.\s*fetch)\s*\(|=\s*fetch\b|\b(?:XMLHttpRequest|axios)\b|\[\s*['"`](?:fetch|XMLHttpRequest|sendBeacon|WebSocket|EventSource|axios)['"`]\s*\]|\bnavigator\s*(?:\??\.\s*sendBeacon|\[\s*['"`]sendBeacon['"`]\s*\])|\bnew\s+(?:WebSocket|EventSource|Image)\b|\bnew\s+Worker\s*\(\s*(?:new\s+URL\s*\(\s*)?['\"`]https?:\/\/|\bimport\s*\(\s*['"`]https?:\/\/|\bdocument\s*(?:\??\.\s*createElement|\[\s*['"`]createElement['"`]\s*\])\s*\(\s*['"`]script['"`]\s*\)|\b(?:window|globalThis|self)\s*(?:\.\s*fetch|\[\s*['"`]fetch['"`]\s*\]))/.test(line)) {
-            errors.push(`Privacy violation in ${fullPath.replace(REPO_ROOT + '/', '')}:${lineIdx + 1}: Unauthorized network primitive detected: ${trimmed}`);
-          }
-        });
+        const fileErrors = scanSourceForNetworkPrimitives(content, relPath);
+        errors.push(...fileErrors);
       }
     }
   }
