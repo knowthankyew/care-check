@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.test.json",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

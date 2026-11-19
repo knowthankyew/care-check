@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TelemetryManager } from '../src/core/telemetry.js';
+import { runTelemetryInFreshRealm } from './realm-worker.mjs';
 
 describe('CareCheck TelemetryManager & Privacy Invariants', () => {
   let tm: TelemetryManager;
@@ -30,9 +31,10 @@ describe('CareCheck TelemetryManager & Privacy Invariants', () => {
 
     const spans = tm.getMemorySpans();
     expect(spans).toHaveLength(1);
-    expect(spans[0].name).toBe('audit_medical_bill');
-    expect(spans[0].status).toBe('OK');
-    expect(spans[0].attributes.line_count).toBe(5);
+    const firstSpan = spans[0]!;
+    expect(firstSpan.name).toBe('audit_medical_bill');
+    expect(firstSpan.status).toBe('OK');
+    expect(firstSpan.attributes.line_count).toBe(5);
   });
 
   it('strictly redacts any attribute not registered in the safe allowlist', () => {
@@ -51,41 +53,54 @@ describe('CareCheck TelemetryManager & Privacy Invariants', () => {
 
     const spans = tm.getMemorySpans();
     expect(spans).toHaveLength(1);
-    const attrs = spans[0].attributes;
+    const attrs = spans[0]!.attributes;
 
     // Allowlisted operational keys pass through
     expect(attrs.hospital_id).toBe('cleveland-clinic-main');
     expect(attrs.household_size).toBe(3);
     expect(attrs.has_income_verified).toBe(true);
 
-    // Sensitive financial and PHI keys are strictly redacted by default
-    expect(attrs.annual_income).toBe('[REDACTED_BY_DEFAULT_ALLOWLIST]');
-    expect(attrs.patient_name).toBe('[REDACTED_BY_DEFAULT_ALLOWLIST]');
-    expect(attrs.ssn).toBe('[REDACTED_BY_DEFAULT_ALLOWLIST]');
-    expect(attrs.diagnosis).toBe('[REDACTED_BY_DEFAULT_ALLOWLIST]');
-    expect(attrs.matchedText).toBe('[REDACTED_BY_DEFAULT_ALLOWLIST]');
-    expect(attrs.raw_payload).toBe('[REDACTED_BY_DEFAULT_ALLOWLIST]');
+    // Sensitive financial and PHI keys are strictly redacted by default without retaining key names
+    expect('annual_income' in attrs).toBe(false);
+    expect('patient_name' in attrs).toBe(false);
+    expect('ssn' in attrs).toBe(false);
+    expect('diagnosis' in attrs).toBe(false);
+    expect('matchedText' in attrs).toBe(false);
+    expect('raw_payload' in attrs).toBe(false);
+    expect(attrs['[REDACTED_KEY]']).toBe('[REDACTED_BY_DEFAULT_ALLOWLIST]');
   });
 
-  it('purges all in-memory spans and session audit logs upon burn()', () => {
-    const span = tm.startSpan('parse_bill', { line_count: 3 });
-    span.end('OK');
+  it('purges all in-memory spans and session audit logs upon burn()', async () => {
+    await runTelemetryInFreshRealm(`
+      const { TelemetryManager: IsolatedTelemetryManager } = telemetryMod;
+      const isolatedTm = new IsolatedTelemetryManager({
+        mode: 'memory_only',
+        otlpEndpoint: null,
+        burnEnabled: true,
+        allowRawPayloads: false,
+        auditDurable: false,
+        networkEgress: 'deny',
+      });
 
-    tm.recordAuditEvent('document_ingested', 'Ingested medical bill', { has_balance_due: true });
+      const span = isolatedTm.startSpan('parse_bill', { line_count: 3 });
+      span.end('OK');
 
-    expect(tm.getMemorySpans().length).toBe(1);
-    expect(tm.getAuditLog().length).toBe(1);
+      isolatedTm.recordAuditEvent('document_ingested', 'Ingested medical bill', { has_balance_due: true });
 
-    // Invoke Burn Local Data
-    tm.burn();
+      assert.equal(isolatedTm.getMemorySpans().length, 1);
+      assert.equal(isolatedTm.getAuditLog().length, 1);
 
-    expect(tm.getMemorySpans().length).toBe(0);
-    expect(tm.getAuditLog().length).toBe(0);
+      // Invoke Burn Local Data
+      isolatedTm.burn();
 
-    // Subsequent span attempts remain no-op until restart
-    const spanAfterBurn = tm.startSpan('post_burn_op', { count: 1 });
-    spanAfterBurn.end('OK');
-    expect(tm.getMemorySpans().length).toBe(0);
+      assert.equal(isolatedTm.getMemorySpans().length, 0);
+      assert.equal(isolatedTm.getAuditLog().length, 0);
+
+      // Subsequent span attempts remain permanently no-op within this burned JS realm
+      const spanAfterBurn = isolatedTm.startSpan('post_burn_op', { count: 1 });
+      spanAfterBurn.end('OK');
+      assert.equal(isolatedTm.getMemorySpans().length, 0);
+    `);
   });
 
   it('generates downloadable session audit JSON', () => {

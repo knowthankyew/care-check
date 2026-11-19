@@ -5,6 +5,7 @@ import {
   auditVocabulary,
   auditPolicyPacks,
   auditPortfolioMasterBrief,
+  // @ts-expect-error - ESM audit script without bundled declaration
 } from '../scripts/audit-claims.mjs';
 
 describe('CareCheck Claims & Privacy Invariant Linter (claims-linter.test.ts)', () => {

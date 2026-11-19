@@ -182,9 +182,13 @@ export const App: React.FC = () => {
   const [bill, setBill] = useState<ItemizedMedicalBill>(activeScenario.bill);
 
   const claims = telemetry.getPrivacyClaims();
+  const { payload: handoffPayload, isHandoffActive, clearHandoff } = useKTYHandoff('care-check');
 
   // Switch scenario
   const handleScenarioChange = (id: string) => {
+    if (isHandoffActive) {
+      clearHandoff();
+    }
     telemetry.restartSession();
     setScenarioId(id);
     setCustomHospital(null);
@@ -210,15 +214,13 @@ export const App: React.FC = () => {
     }));
   };
 
-  const { payload: handoffPayload, isHandoffActive, clearHandoff } = useKTYHandoff('care-check');
-
   useEffect(() => {
-    if (handoffPayload) {
+    if (isHandoffActive && handoffPayload) {
       const mapped = mapHandoffToMedicalBill(handoffPayload);
       setBill(mapped);
       setScenarioId('custom');
     }
-  }, [handoffPayload]);
+  }, [handoffPayload, isHandoffActive]);
 
   const handleClearHandoff = () => {
     clearHandoff();
